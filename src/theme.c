@@ -263,7 +263,45 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	return true;
 }
 
-void csd_destroy_stage(CSD_STAGE * sp)
+void csd_free_stage(CSD_STAGE * sp)
 {
-	free(sp);
+	int i;
+	
+	for(i = 0; i < CSD_THEME_ANIMATIONS; i++)
+	{
+		if(sp->animation[i])
+		{
+			t3f_destroy_animation(sp->animation[i]);
+			sp->animation[i] = NULL;
+		}
+	}
+	if(sp->font)
+	{
+		al_destroy_font(sp->font);
+		sp->font = NULL;
+	}
+	for(i = 0; i < CSD_THEME_SAMPLES; i++)
+	{
+		if(sp->sample[i])
+		{
+			al_destroy_sample(sp->sample[i]);
+			sp->sample[i] = NULL;
+		}
+	}
+	for(i = 0; i < CSD_BLOCK_MAX_TYPES; i++)
+	{
+		if(sp->crystal_animation[i])
+		{
+			t3f_destroy_animation(sp->crystal_animation[i]);
+			sp->crystal_animation[i] = NULL;
+		}
+	}
+	for(i = 0; i < CSD_BLOCK_MAX_TYPES; i++)
+	{
+		if(sp->fcrystal_animation[i])
+		{
+			t3f_destroy_animation(sp->fcrystal_animation[i]);
+			sp->fcrystal_animation[i] = NULL;
+		}
+	}
 }

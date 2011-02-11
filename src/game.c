@@ -1,5 +1,5 @@
-#include <allegro5/allegro5.h>
 #include "t3f/t3f.h"
+#include "t3f/music.h"
 #include "main.h"
 #include "game.h"
 #include "core.h"
@@ -47,6 +47,9 @@ bool csd_game_setup(void)
 
 void csd_game_exit(void)
 {
+	csd_free_stage(&csd_game.stage);
+	t3f_stop_music();
+	csd_set_state(CSD_STATE_TITLE);
 }
 
 void csd_game_init_level(int level, int player)
@@ -219,6 +222,20 @@ void csd_game_player_logic(int player)
 	}
 }
 
+void csd_game_projectile_logic(void)
+{
+	int i;
+	
+	for(i = 0; i < 64; i++)
+	{
+		sprite_3d_logic(&csd_game.sprite[i]);
+		if(csd_game.sprite[i].y > 480.0)
+		{
+			csd_game.sprite[i].active = false;
+		}
+	}
+}
+
 void csd_game_logic(void)
 {
 	int i;
@@ -236,6 +253,7 @@ void csd_game_logic(void)
 			{
 				csd_game_player_logic(i);
 			}
+			csd_game_projectile_logic();
 			break;
 		}
 		case CSD_GAME_STATE_PAUSE:
@@ -245,16 +263,13 @@ void csd_game_logic(void)
 				csd_game.state = CSD_GAME_STATE_PLAY;
 				t3f_key[ALLEGRO_KEY_P] = 0;
 			}
+			csd_game_projectile_logic();
 			break;
 		}
-	}
-	
-	for(i = 0; i < 64; i++)
-	{
-		sprite_3d_logic(&csd_game.sprite[i]);
-		if(csd_game.sprite[i].y > 480.0)
+		case CSD_GAME_STATE_OVER:
 		{
-			csd_game.sprite[i].active = false;
+			csd_game_exit();
+			break;
 		}
 	}
 }
