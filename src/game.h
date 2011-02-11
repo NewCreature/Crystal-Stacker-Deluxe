@@ -23,11 +23,14 @@ typedef struct
 	int players;
 	
 	int state;
+	int tick;
 	
 } CSD_GAME;
 
-void csd_game_init_level(CSD_GAME * gp, int level, int player);
-void csd_game_logic(CSD_GAME * gp);
-void csd_game_render(CSD_GAME * gp);
+bool csd_game_setup(void);
+void csd_game_exit(void);
+void csd_game_init_level(int level, int player);
+void csd_game_logic(void);
+void csd_game_render(void);
 
 #endif
