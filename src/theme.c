@@ -82,40 +82,23 @@ void csd_destroy_theme(CSD_THEME * tp)
 	free(tp);
 }
 
-/* at level change, check if new stage should be loaded */
-bool csd_should_load_stage(CSD_THEME * tp, int stage)
-{
-	char stage_name[256] = {0};
-	const char * value;
-	
-	sprintf(stage_name, "Stage %d", stage);
-	value = al_get_config_value(tp->config, stage_name, "Load");
-	if(!value)
-	{
-		return false;
-	}
-	return true;
-}
-
 /* load the specified stage, should only be called if csd_should_load_stage
    returned true */
-CSD_STAGE * csd_load_stage(CSD_THEME * tp, int stage)
+bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 {
-	CSD_STAGE * sp;
 	char stage_name[256] = {0};
 	char vname[256] = {0};
 	const char * value;
 	int fs = 16;
 	int i;
 	
-	sp = malloc(sizeof(CSD_STAGE));
-	if(!sp)
-	{
-		return NULL;
-	}
-	memset(sp, 0, sizeof(CSD_STAGE));
-	
 	sprintf(stage_name, "Stage %d", stage);
+	
+	/* clear stage data if we are loading the first stage so we don't get junk */
+	if(stage == 0)
+	{
+		memset(sp, 0, sizeof(CSD_STAGE));
+	}
 	
 	/* load the font */
 	value = al_get_config_value(tp->config, stage_name, "Font");
@@ -132,22 +115,20 @@ CSD_STAGE * csd_load_stage(CSD_THEME * tp, int stage)
 	
 	/* load the background image */
 	value = al_get_config_value(tp->config, stage_name, "Background");
-	if(!value)
+	if(value)
 	{
-		return NULL;
+		al_set_path_filename(tp->path, value);
+		printf("%s\n", value);
+		sp->animation[CSD_THEME_ANIMATION_BACKGROUND] = csd_load_animation(tp->path);
 	}
-	al_set_path_filename(tp->path, value);
-	printf("%s\n", value);
-	sp->animation[CSD_THEME_ANIMATION_BACKGROUND] = csd_load_animation(tp->path);
 	
 	/* load the playground image */
 	value = al_get_config_value(tp->config, stage_name, "Playground");
-	if(!value)
+	if(value)
 	{
-		return NULL;
+		al_set_path_filename(tp->path, value);
+		sp->animation[CSD_THEME_ANIMATION_PLAYGROUND] = csd_load_animation(tp->path);
 	}
-	al_set_path_filename(tp->path, value);
-	sp->animation[CSD_THEME_ANIMATION_PLAYGROUND] = csd_load_animation(tp->path);
 	
 	/* load the playground positions */
 	for(i = 0; i < tp->max_players; i++)
@@ -273,15 +254,13 @@ CSD_STAGE * csd_load_stage(CSD_THEME * tp, int stage)
 	
 	/* play music */
 	value = al_get_config_value(tp->config, stage_name, "Music");
-	if(!value)
+	if(value)
 	{
-		return NULL;
+		al_set_path_filename(tp->path, value);
+		t3f_play_music(al_path_cstr(tp->path, '/'));
 	}
-	al_set_path_filename(tp->path, value);
-	t3f_play_music(al_path_cstr(tp->path, '/'));
-//	dumba5_load_and_play_module(value, 0, true, 44100, true);	
 	
-	return sp;
+	return true;
 }
 
 void csd_destroy_stage(CSD_STAGE * sp)

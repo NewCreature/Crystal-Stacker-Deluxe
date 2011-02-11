@@ -16,7 +16,7 @@ typedef struct
 {
 	
 	CSD_THEME * theme;
-	CSD_STAGE * stage;
+	CSD_STAGE stage;
 	CSD_PLAYER player[CSD_MAX_PLAYERS];
 	CSD_SPRITE_3D sprite[128];
 	

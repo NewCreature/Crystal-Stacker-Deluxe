@@ -70,8 +70,7 @@ typedef struct
 
 CSD_THEME * csd_load_theme(const char * fn);
 void csd_destroy_theme(CSD_THEME * tp);
-bool csd_should_load_stage(CSD_THEME * tp, int stage);
-CSD_STAGE * csd_load_stage(CSD_THEME * tp, int stage);
+bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage);
 void csd_destroy_stage(CSD_STAGE * sp);
 
 #endif

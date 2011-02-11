@@ -74,9 +74,9 @@ bool csd_initialize(int argc, char * argv[])
 	}
 	csd_game.theme = csd_theme;
 	csd_game_init_level(&csd_game, 0, 0);
-	for(i = 0; i < csd_game.stage->board_height; i++)
+	for(i = 0; i < csd_game.stage.board_height; i++)
 	{
-		for(j = 0; j < csd_game.stage->board_width; j++)
+		for(j = 0; j < csd_game.stage.board_width; j++)
 		{
 			csd_game.player[0].board.data[i][j] = 0;
 			csd_game.player[0].board.flag[i][j] = 0;
@@ -85,7 +85,7 @@ bool csd_initialize(int argc, char * argv[])
 	csd_game.players = 1;
 	for(i = 0; i < csd_game.players; i++)
 	{
-		csd_game.player[i].block.x = (csd_game.stage->board_width / 2) * csd_game.stage->crystal_animation[0]->frame[0]->width;
+		csd_game.player[i].block.x = (csd_game.stage.board_width / 2) * csd_game.stage.crystal_animation[0]->frame[0]->width;
 		csd_game.player[i].block.y = 0.0;
 		csd_player_block_generate(&csd_game.player[i].block);
 		csd_player_block_generate(&csd_game.player[i].block_preview);
