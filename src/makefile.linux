@@ -1,0 +1,18 @@
+CC = gcc
+CFLAGS = -O2 -fomit-frame-pointer -ffast-math -funroll-loops -Wall
+LIBS = -lallegro_image -lallegro_font -lallegro_ttf -lallegro_primitives -lallegro_audio -lallegro_acodec -lallegro
+
+T3F_OFILES = t3f/t3f.o t3f/music.o t3f/animation.o
+CSD_OFILES = main.o theme.o core.o player.o game.o 3dsprite.o
+CSD_EXENAME = ../bin/csd
+
+all : $(CSD_EXENAME)
+
+$(CSD_EXENAME) : $(T3F_OFILES) $(CSD_OFILES)
+	gcc $(T3F_OFILES) $(CSD_OFILES) -O2 -fomit-frame-pointer -ffast-math -march=pentium -funroll-loops -Wall $(LIBS) -o $(CSD_EXENAME)
+
+
+clean:
+	@rm -f *.o
+	@rm -f t3f/*.o
+	@echo Cleanup complete!

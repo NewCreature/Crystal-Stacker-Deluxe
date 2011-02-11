@@ -1,0 +1,18 @@
+CC = gcc
+CFLAGS = -O2 -fomit-frame-pointer -ffast-math -march=pentium -funroll-loops -Wall
+LIBS = -la5_iio-4.9.13.dll -la5_font-4.9.13.dll -la5_primitives-4.9.13.dll -la5_vorbis-4.9.13.dll -lkcm_audio-4.9.13.dll -la5_dialog-4.9.13.dll -lallegro-4.9.13.dll -ldumb
+
+T3F_OFILES = ../../../Dev/T3F/t3f/t3f.o ../../../Dev/T3F/t3f/music.o ../../../Dev/T3F/t3f/3d.o ../../../Dev/T3F/t3f/animation.o ../../../Dev/T3F/t3f/dumba5.o
+CSD_OFILES = main.o theme.o core.o player.o game.o 3dsprite.o
+CSD_EXENAME = ../bin/csd.exe
+
+all : $(CSD_EXENAME)
+
+$(CSD_EXENAME) : $(T3F_OFILES) $(CSD_OFILES)
+	gcc $(T3F_OFILES) $(CSD_OFILES) -O2 -fomit-frame-pointer -ffast-math -march=pentium -funroll-loops -Wall $(LIBS) -o $(CSD_EXENAME)
+
+
+clean:
+	@del *.o
+	@del ..\..\..\Dev\T3F\t3f\*.o
+	@echo Cleanup complete!

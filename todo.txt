@@ -1,0 +1,41 @@
+Crystal Stacker Deluxe To-Do List
+---------------------------------
+
+v0.1 Preview
+------------
+
+[ ]Finalize theme format.
+   [ ]Use T3F_ANIMATION instead of ALLEGRO_BITMAP for all image data
+      [ ]If PNG supplied, load into T3F_ANIMATION automatically
+      [ ]Automatically detect PNG/ANI
+   [ ]Load individual crystal animations instead of sheets
+   [ ]Add music support
+   [ ]Define all theme settings (per stage)
+      [ ]Block size
+      [ ]Stack size
+      [ ]Block types
+      [ ]Board size
+      [X]Playground position
+      [ ]Playground graphic offset
+      [ ]Preview position
+   [ ]INI Sections for Single-Player and Multi-Player
+   [ ]Theme should supply a font.
+   [ ]Make sure themes can load things optionally per stage (so we can change
+      the background, for instance, without having to specify everything else).
+      [ ]Stage should be loaded into an existing structure.
+   
+[ ]Finish stage loading code
+   [ ]Only load new stage if one is specified in "theme.ini"
+   
+[X]Implement standard single player
+   [X]Convert core from CS2 prototype
+      [X]Fix "core", "player", "game", "3dsprite"
+
+[ ]Create new default theme based on original CS theme
+   [ ]Crystal graphics
+   [ ]Background image
+   [ ]Playground image
+
+[ ]Implement scaled font system (probably in T3F)
+
+[ ]Implement in-game score display
