@@ -3,7 +3,7 @@ CFLAGS = -O2 -fomit-frame-pointer -ffast-math -funroll-loops -Wall
 LIBS = -lallegro_image -lallegro_font -lallegro_ttf -lallegro_primitives -lallegro_audio -lallegro_acodec -lallegro
 
 T3F_OFILES = t3f/t3f.o t3f/music.o t3f/animation.o t3f/gui.o
-CSD_OFILES = main.o title.o theme.o core.o player.o game.o 3dsprite.o
+CSD_OFILES = main.o title.o theme.o legacy_theme.o core.o player.o game.o 3dsprite.o
 CSD_EXENAME = ../bin/csd
 
 all : $(CSD_EXENAME)

@@ -1,10 +1,8 @@
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_audio.h>
-#include "../../../Dev/T3F/t3f/music.h"
+#include "t3f/t3f.h"
+#include "t3f/music.h"
 #include <stdio.h>
 #include "theme.h"
+#include "legacy_theme.h"
 
 static char * csd_theme_sample_name[CSD_THEME_SAMPLES] =
 {
@@ -45,6 +43,22 @@ CSD_THEME * csd_load_theme(const char * fn)
 {
 	CSD_THEME * tp;
 	const char * value;
+	ALLEGRO_PATH * path;
+	
+	path = al_create_path(fn);
+	if(path)
+	{
+		value = al_get_path_extension(path);
+		if(value)
+		{
+			if(!strcasecmp(value, ".cth"))
+			{
+				al_destroy_path(path);
+				return csd_load_legacy_theme(fn);
+			}
+		}
+		al_destroy_path(path);
+	}
 	
 	tp = malloc(sizeof(CSD_THEME));
 	if(!tp)
@@ -92,6 +106,15 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	int fs = 16;
 	int i;
 	
+	value = al_get_config_value(tp->config, "Settings", "Legacy");
+	if(value)
+	{
+		if(stage == 0)
+		{
+			return csd_load_legacy_stage(tp, sp);
+		}
+		return true;
+	}
 	sprintf(stage_name, "Stage %d", stage);
 	
 	/* clear stage data if we are loading the first stage so we don't get junk */
@@ -137,13 +160,13 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		value = al_get_config_value(tp->config, stage_name, vname);
 		if(value)
 		{
-			sp->playground_x[i] = atol(value);
+			sp->layout[i].playground.x = atol(value);
 		}
 		sprintf(vname, "Playground %d Y", i);
 		value = al_get_config_value(tp->config, stage_name, vname);
 		if(value)
 		{
-			sp->playground_y[i] = atof(value);
+			sp->layout[i].playground.y = atof(value);
 		}
 	}
 	

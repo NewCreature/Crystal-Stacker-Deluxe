@@ -18,7 +18,7 @@ void core_delete_block(CSD_PLAYER_BOARD * bp, int boardx, int boardy)
 	{
 		if(!csd_game.sprite[i].active)
 		{
-			sprite_3d_create(&csd_game.sprite[i], csd_game.stage.crystal_animation[(int)csd_game.player[0].board.data[boardy][boardx]], csd_game.stage.playground_x[0] + boardx * csd_game.stage.crystal_animation[0]->frame[0]->width, csd_game.stage.playground_y[0] + (boardy - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height, 20, 0.0, rand() % 2 - 1, -(8 + rand() % 3) * 2);
+			sprite_3d_create(&csd_game.sprite[i], csd_game.stage.crystal_animation[(int)csd_game.player[0].board.data[boardy][boardx]], csd_game.stage.layout[0].playground.x + boardx * csd_game.stage.crystal_animation[0]->frame[0]->width, csd_game.stage.layout[0].playground.y + (boardy - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height, 20, 0.0, rand() % 2 - 1, -(8 + rand() % 3) * 2);
 			break;
 		}
 	}

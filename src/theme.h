@@ -31,6 +31,25 @@
 #define CSD_THEME_SAMPLE_PAUSE         9
 #define CSD_THEME_SAMPLE_ATTACK       10
 
+typedef struct
+{
+	
+	float x;
+	float y;
+	
+} CSD_STAGE_OBJECT;
+
+typedef struct
+{
+	
+	CSD_STAGE_OBJECT playground;
+	CSD_STAGE_OBJECT preview;
+	CSD_STAGE_OBJECT score;
+	CSD_STAGE_OBJECT level;
+	CSD_STAGE_OBJECT message;
+	CSD_STAGE_OBJECT block;
+	
+} CSD_STAGE_LAYOUT;
 
 typedef struct
 {
@@ -38,10 +57,11 @@ typedef struct
 	T3F_ANIMATION * animation[CSD_THEME_ANIMATIONS];
 	ALLEGRO_FONT * font;
 	ALLEGRO_SAMPLE * sample[CSD_THEME_SAMPLES];
-	float playground_x[CSD_MAX_PLAYERS];
-	float playground_y[CSD_MAX_PLAYERS];
-	float preview_x[CSD_MAX_PLAYERS];
-	float preview_y[CSD_MAX_PLAYERS];
+	CSD_STAGE_LAYOUT layout[CSD_MAX_PLAYERS];
+	CSD_STAGE_OBJECT time;
+	CSD_STAGE_OBJECT best_time;
+	CSD_STAGE_OBJECT high_score;
+	CSD_STAGE_OBJECT message;
 	int block_width;
 	int block_height;
 	int board_width;
