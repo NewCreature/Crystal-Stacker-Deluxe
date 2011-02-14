@@ -26,7 +26,7 @@ bool csd_game_setup(void)
 	
 	memset(&csd_game, 0, sizeof(CSD_GAME));
 //	csd_theme = csd_load_theme("themes/default/theme.ini");
-	csd_theme = csd_load_theme("themes/legacy/stone.cth");
+	csd_theme = csd_load_theme("themes/legacy/fb.cth");
 	if(!csd_theme)
 	{
 		printf("Error loading theme!\n");
@@ -327,7 +327,7 @@ void csd_game_player_render(int player)
 					}
 					else
 					{
-						t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].board.data[i + csd_game.stage.stack_height][j]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, j * csd_game.stage.crystal_animation[0]->frame[0]->width + csd_game.stage.layout[player].playground.x, i * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y, 0.0, 0);
+						t3f_draw_animation(csd_game.stage.fcrystal_animation[(int)csd_game.player[player].board.data[i + csd_game.stage.stack_height][j]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, j * csd_game.stage.crystal_animation[0]->frame[0]->width + csd_game.stage.layout[player].playground.x, i * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y, 0.0, 0);
 					}
 				}
 			}

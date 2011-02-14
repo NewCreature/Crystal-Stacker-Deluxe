@@ -530,6 +530,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 
 	sp->stack_height = 3;
 	sp->block_types = 5;
+	sp->flash_type = 1;
 
     /* close the file */
     al_fclose(file);
