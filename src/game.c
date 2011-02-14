@@ -26,7 +26,7 @@ bool csd_game_setup(void)
 	
 	memset(&csd_game, 0, sizeof(CSD_GAME));
 //	csd_theme = csd_load_theme("themes/default/theme.ini");
-	csd_theme = csd_load_theme("themes/fb.cth");
+	csd_theme = csd_load_theme("themes/legacy/stone.cth");
 	if(!csd_theme)
 	{
 		printf("Error loading theme!\n");
