@@ -11,13 +11,22 @@ int down_done = 0;
 CSD_THEME * csd_theme = NULL;
 CSD_GAME csd_game;
 
+bool csd_play_sample(ALLEGRO_SAMPLE * sp)
+{
+	if(sp)
+	{
+		return al_play_sample(sp, 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+	}
+	return false;
+}
+
 bool csd_game_setup(void)
 {
 	int i, j;
 	
 	memset(&csd_game, 0, sizeof(CSD_GAME));
 //	csd_theme = csd_load_theme("themes/default/theme.ini");
-	csd_theme = csd_load_theme("themes/cs.cth");
+	csd_theme = csd_load_theme("themes/fb.cth");
 	if(!csd_theme)
 	{
 		printf("Error loading theme!\n");
@@ -80,11 +89,11 @@ void csd_game_player_logic(int player)
 				{
 					csd_game.player[player].block.bx--;
 					csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
-					al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
 				}
 				else
 				{
-					al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
 				}
 				t3f_key[ALLEGRO_KEY_LEFT] = 0;
 			}
@@ -94,11 +103,11 @@ void csd_game_player_logic(int player)
 				{
 					csd_game.player[player].block.bx++;
 					csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
-					al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
 				}
 				else
 				{
-					al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
 				}
 				t3f_key[ALLEGRO_KEY_RIGHT] = 0;
 			}
@@ -128,7 +137,7 @@ void csd_game_player_logic(int player)
 		
 				/* place remembered crystal at the bottom */
 				csd_game.player[player].block.data[csd_game.stage.stack_height - 1] = temp;
-				al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_ROTATE_UP], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_ROTATE_UP]);
 				t3f_key[ALLEGRO_KEY_UP] = 0;
 			}
 			csd_game.player[player].block.bx = csd_game.player[player].block.x / csd_game.stage.crystal_animation[0]->frame[0]->width;
@@ -177,10 +186,10 @@ void csd_game_player_logic(int player)
 				csd_game.player[player].block.y = 0.0;
 				csd_player_block_copy(&csd_game.player[player].block, &csd_game.player[player].block_preview);
 				csd_player_block_generate(&csd_game.player[player].block_preview);
-				al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LAND], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LAND]);
 				if(core_find_all_runs(&csd_game.player[player].board) > 0)
 				{
-					al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES]);
 					csd_game.player[player].board.state = CSD_PLAYER_BOARD_STATE_RUNS;
 					csd_game.player[player].board.state_counter = 0;
 					csd_game.player[player].combo = 0;
@@ -198,18 +207,18 @@ void csd_game_player_logic(int player)
 				csd_game.player[player].destroyed += temp;
 				csd_game.player[player].removed += temp;
 				csd_game.player[player].combo++;
-				al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_DELETE], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_DELETE]);
 	    		if(csd_game.player[player].destroyed >= (csd_game.player[player].level + 1) * 45)
 				{
 					if(csd_game.player[player].level < 20)
 					{
 	    				csd_game_init_level(csd_game.player[player].level + 1, 0);
-						al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LEVEL], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LEVEL]);
 					}
 				}
 				if(core_find_all_runs(&csd_game.player[player].board) > 0)
 				{
-					al_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES]);
 					csd_game.player[player].board.state_counter = 0;
 				}
 				else

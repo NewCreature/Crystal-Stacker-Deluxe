@@ -13,6 +13,19 @@ T3F_ANIMATION * bitmap2ani(ALLEGRO_BITMAP * bp)
 	return ap;
 }
 
+static void scale_animation(T3F_ANIMATION * ap, float sw, float sh)
+{
+	int i;
+	
+	for(i = 0; i < ap->frames; i++)
+	{
+		ap->frame[i]->x *= sw;
+		ap->frame[i]->y *= sh;
+		ap->frame[i]->width *= sw;
+		ap->frame[i]->height *= sh;
+	}
+}
+
 T3F_ANIMATION * csd_legacy_load_ani_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[256])
 {
     T3F_ANIMATION * ap;
@@ -81,7 +94,7 @@ T3F_ANIMATION * csd_legacy_load_ani_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[256]
     return ap;
 }
 
-ALLEGRO_FONT * csd_legacy_load_ncdfont_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[256])
+ALLEGRO_FONT * csd_legacy_load_ncdfont_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[256], int sw, int sh)
 {
     int i, j, k, c;
     char Header[4];
@@ -89,7 +102,7 @@ ALLEGRO_FONT * csd_legacy_load_ncdfont_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[2
     ALLEGRO_BITMAP * cbp;
     ALLEGRO_FONT * font;
     ALLEGRO_STATE old_state;
-    int fw, fh;
+    int fw, fh, fsw, fsh;
 	int ranges[] = {0, 255};
 
     /* read header */
@@ -104,13 +117,17 @@ ALLEGRO_FONT * csd_legacy_load_ncdfont_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[2
     /* read font dimensions */
     fw = al_fgetc(fp);
     fh = al_fgetc(fp);
+    fsw = fw * sw;
+    fsh = fh * sh;
 
 	/* create font bitmap */
-	bp = al_create_bitmap((fw + 1) * 16 + 1, (fh + 1) * 16 + 1);
+	bp = al_create_bitmap((fsw + 1) * 16 + 1, (fsh + 1) * 16 + 1);
 	if(!bp)
 	{
 		return NULL;
 	}
+	
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
 	
 	/* create character bitmap */
 	cbp = al_create_bitmap(fw, fh);
@@ -118,8 +135,6 @@ ALLEGRO_FONT * csd_legacy_load_ncdfont_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[2
 	{
 		return NULL;
 	}
-	
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
 	
 	/* make yellow border to divide characters */
 	al_set_target_bitmap(bp);
@@ -146,7 +161,7 @@ ALLEGRO_FONT * csd_legacy_load_ncdfont_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[2
         }
         al_set_target_bitmap(bp);
         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-        al_draw_bitmap(cbp, 1 + (i % 16) * (fw + 1), 1 + (i / 16) * (fh + 1), 0);
+        al_draw_scaled_bitmap(cbp, 0, 0, fw, fh, 1 + (i % 16) * (fsw + 1), 1 + (i / 16) * (fsh + 1), fsw, fsh, 0);
     }
 	al_destroy_bitmap(cbp);
     al_restore_state(&old_state);
@@ -189,6 +204,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     char header[16] = {0};
     int rw, rh, r, g, b;
     int bw, bh, tw, th, mw, mh;
+    int scale_w, scale_h;
     float a = 1.0;
     int block_chart[16] = {9, 0, 1, 2, 3, 4, 5, 6};
 	ALLEGRO_COLOR palette[256];
@@ -219,6 +235,8 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     al_fgetc(file);
     rw = al_fread16le(file);
     rh = al_fread16le(file);
+    scale_w = 640 / rw;
+    scale_h = 480 / rh;
 
     /* load the palette */
     for(i = 0; i < 256; i++)
@@ -234,28 +252,28 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     sp->board_height = al_fgetc(file);
     for(i = 0; i < 2; i++)
     {
-        sp->layout[i].playground.x = al_fread16le(file);
-        sp->layout[i].playground.y = al_fread16le(file);
-        sp->layout[i].score.x = al_fread16le(file);
-        sp->layout[i].score.y = al_fread16le(file);
-        sp->layout[i].preview.x = al_fread16le(file);
-        sp->layout[i].preview.y = al_fread16le(file);
-        sp->layout[i].level.x = al_fread16le(file);
-        sp->layout[i].level.y = al_fread16le(file);
-        sp->layout[i].block.x = al_fread16le(file);
-        sp->layout[i].block.y = al_fread16le(file);
-        sp->layout[i].message.x = al_fread16le(file);
-        sp->layout[i].message.y = al_fread16le(file);
+        sp->layout[i].playground.x = al_fread16le(file) * scale_w;
+        sp->layout[i].playground.y = al_fread16le(file) * scale_h;
+        sp->layout[i].score.x = al_fread16le(file) * scale_w;
+        sp->layout[i].score.y = al_fread16le(file) * scale_h;
+        sp->layout[i].preview.x = al_fread16le(file) * scale_w;
+        sp->layout[i].preview.y = al_fread16le(file) * scale_h;
+        sp->layout[i].level.x = al_fread16le(file) * scale_w;
+        sp->layout[i].level.y = al_fread16le(file) * scale_h;
+        sp->layout[i].block.x = al_fread16le(file) * scale_w;
+        sp->layout[i].block.y = al_fread16le(file) * scale_h;
+        sp->layout[i].message.x = al_fread16le(file) * scale_w;
+        sp->layout[i].message.y = al_fread16le(file) * scale_w;
     }
 
-    sp->time.x = al_fread16le(file);
-    sp->time.y = al_fread16le(file);
-    sp->high_score.x = al_fread16le(file);
-    sp->high_score.y = al_fread16le(file);
-    sp->best_time.x = al_fread16le(file);
-    sp->best_time.y = al_fread16le(file);
-    sp->message.x = al_fread16le(file);
-    sp->message.y = al_fread16le(file);
+    sp->time.x = al_fread16le(file) * scale_w;
+    sp->time.y = al_fread16le(file) * scale_h;
+    sp->high_score.x = al_fread16le(file) * scale_w;
+    sp->high_score.y = al_fread16le(file) * scale_h;
+    sp->best_time.x = al_fread16le(file) * scale_w;
+    sp->best_time.y = al_fread16le(file) * scale_h;
+    sp->message.x = al_fread16le(file) * scale_w;
+    sp->message.y = al_fread16le(file) * scale_h;
 
     /* block stuff */
     if(header[3] == 21)
@@ -275,18 +293,34 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 					c = al_fgetc(file);
 					if(c < 256)
 					{
-						al_put_pixel(k, j, palette[c]);
+						if(c > 1)
+						{
+							al_put_pixel(k, j, palette[c]);
+						}
+						else
+						{
+							al_put_pixel(k, j, al_map_rgba_f(0.0, 0.0, 0.0, 0.0));
+						}
 					}
 					al_set_target_bitmap(block_flash_image);
 					c = al_fgetc(file);
 					if(c < 256)
 					{
-						al_put_pixel(k, j, palette[c]);
+						if(c > 1)
+						{
+							al_put_pixel(k, j, palette[c]);
+						}
+						else
+						{
+							al_put_pixel(k, j, al_map_rgba_f(0.0, 0.0, 0.0, 0.0));
+						}
 					}
             	}
         	}
         	sp->crystal_animation[i] = bitmap2ani(block_image);
+        	scale_animation(sp->crystal_animation[i], scale_w, scale_h);
         	sp->fcrystal_animation[i] = bitmap2ani(block_flash_image);
+        	scale_animation(sp->fcrystal_animation[i], scale_w, scale_h);
     	}
     }
     else if(header[3] == 22)
@@ -294,7 +328,9 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 	    for(i = 0; i < 7; i++)
 	    {
         	sp->crystal_animation[i] = csd_legacy_load_ani_fp(file, palette);
+        	scale_animation(sp->crystal_animation[i], scale_w, scale_h);
         	sp->fcrystal_animation[i] = csd_legacy_load_ani_fp(file, palette);
+        	scale_animation(sp->fcrystal_animation[i], scale_w, scale_h);
     	}
     }
 
@@ -332,6 +368,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
             	}
         	}
         	sp->animation[CSD_THEME_ANIMATION_BACKGROUND] = bitmap2ani(bp);
+        	scale_animation(sp->animation[CSD_THEME_ANIMATION_BACKGROUND], scale_w, scale_h);
     	}
     }
 
@@ -362,7 +399,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     }
 
     /* font stuff */
-    sp->font = csd_legacy_load_ncdfont_fp(file, palette);
+    sp->font = csd_legacy_load_ncdfont_fp(file, palette, scale_w, scale_h);
 
     /* map stuff */
     mw = al_fgetc(file);
