@@ -124,8 +124,15 @@ void csd_game_player_logic(int player)
 			}
 			if(t3f_key[ALLEGRO_KEY_DOWN] && !down_done)
 			{
-				csd_game.player[player].block.y += csd_game.stage.crystal_animation[0]->frame[0]->height;
-				csd_game.player[player].block.by = csd_game.player[player].block.y / csd_game.stage.crystal_animation[0]->frame[0]->height;
+				if(csd_game.stage.fall_type == 1)
+				{
+					csd_game.player[player].block.y += (float)csd_game.stage.block_height - fmod(csd_game.player[player].block.y, csd_game.stage.block_height);
+				}
+				else
+				{
+					csd_game.player[player].block.y += (float)csd_game.stage.block_height;
+				}
+				csd_game.player[player].block.by = csd_game.player[player].block.y / csd_game.stage.block_height;
 			}
 			else
 			{
