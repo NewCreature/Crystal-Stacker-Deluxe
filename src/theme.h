@@ -69,6 +69,7 @@ typedef struct
 	int stack_height;
 	int block_types;
 	int flash_type;
+	int fall_type;
 	
 	T3F_ANIMATION * crystal_animation[CSD_BLOCK_MAX_TYPES];
 	T3F_ANIMATION * fcrystal_animation[CSD_BLOCK_MAX_TYPES];

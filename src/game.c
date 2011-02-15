@@ -24,9 +24,10 @@ bool csd_game_setup(void)
 {
 	int i, j;
 	
+	al_stop_timer(t3f_timer);
 	memset(&csd_game, 0, sizeof(CSD_GAME));
 //	csd_theme = csd_load_theme("themes/default/theme.ini");
-	csd_theme = csd_load_theme("themes/legacy/fb.cth");
+	csd_theme = csd_load_theme("themes/legacy/cs.cth");
 	if(!csd_theme)
 	{
 		printf("Error loading theme!\n");
@@ -52,6 +53,7 @@ bool csd_game_setup(void)
 	}
 	csd_game.state = CSD_GAME_STATE_PLAY;
 	csd_set_state(CSD_STATE_PLAYING);
+	al_start_timer(t3f_timer);
 	return true;
 }
 
@@ -282,11 +284,14 @@ void csd_game_logic(void)
 			break;
 		}
 	}
+	csd_game.tick++;
 }
 
 void csd_game_player_render(int player)
 {
 	int i, j;
+	float sy;
+	
 	/* draw board */
 /*	if(csd_game.theme->flag[CSD_THEME_FLAG_CLIP_BOARD_TOP])
 	{
@@ -308,6 +313,7 @@ void csd_game_player_render(int player)
 	int cx, cy, cw, ch;
 	al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
 //	al_set_clipping_rectangle((float)csd_game.stage.layout[player].playground.x * t3f_3d_state.scale_x, (float)csd_game.stage.layout[player].playground.y * t3f_3d_state.scale_y, (float)(csd_game.stage.board_width * csd_game.stage.crystal_animation[0]->frame[0]->width) * t3f_3d_state.scale_x, (float)((csd_game.stage.board_height) * csd_game.stage.crystal_animation[0]->frame[0]->height) * t3f_3d_state.scale_y);
+	t3f_set_clipping_rectangle(csd_game.stage.layout[player].playground.x, csd_game.stage.layout[player].playground.y, csd_game.stage.layout[player].playground.x + csd_game.stage.board_width * csd_game.stage.block_width, csd_game.stage.layout[player].playground.y + csd_game.stage.board_height * csd_game.stage.block_height);
 	for(i = 0; i < csd_game.stage.board_height; i++)
 	{
 		for(j = 0; j < csd_game.stage.board_width; j++)
@@ -316,7 +322,7 @@ void csd_game_player_render(int player)
 			{
 				if(csd_game.player[player].board.state == CSD_PLAYER_BOARD_STATE_NORMAL || (csd_game.player[player].board.state_counter / 3) % 2 == 0 || csd_game.player[player].board.flag[i + csd_game.stage.stack_height][j] == 0)
 				{
-					t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].board.data[i + csd_game.stage.stack_height][j]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), 0, j * csd_game.stage.crystal_animation[0]->frame[0]->width + csd_game.stage.layout[player].playground.x, i * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y, 0.0, 0);
+					t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].board.data[i + csd_game.stage.stack_height][j]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, j * csd_game.stage.crystal_animation[0]->frame[0]->width + csd_game.stage.layout[player].playground.x, i * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y, 0.0, 0);
 				}
 				else
 				{
@@ -335,7 +341,15 @@ void csd_game_player_render(int player)
 	}
 	for(i = 0; i < csd_game.stage.stack_height; i++)
 	{
-		t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), 0, csd_game.stage.layout[player].playground.x + csd_game.player[player].block.x, (i - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y + csd_game.player[player].block.y, 0.0, 0);
+		if(csd_game.stage.fall_type == 0)
+		{
+			sy = csd_game.player[player].block.y;
+		}
+		else
+		{
+			sy = ((int)(csd_game.player[player].block.y + (csd_game.stage.block_height - 1)) / csd_game.stage.block_height) * csd_game.stage.block_height;
+		}
+		t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].playground.x + csd_game.player[player].block.x, (i - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y + sy, 0.0, 0);
 	}
 	al_set_clipping_rectangle(cx, cy, cw, ch);
 //	set_clip(csd_game.ibuffer[0], 0, 0, bp->w - 1, bp->h - 1);
@@ -343,7 +357,7 @@ void csd_game_player_render(int player)
 	/* draw preview block */
 	for(i = 0; i < csd_game.stage.stack_height; i++)
 	{
-		t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block_preview.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), 0, csd_game.stage.layout[player].preview.x, i * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].preview.y, 0.0, 0);
+		t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block_preview.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].preview.x, i * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].preview.y, 0.0, 0);
 	}
 	
 	/* draw game info */
@@ -365,6 +379,7 @@ void csd_game_render(void)
 	else
 	{
 		al_clear_to_color(al_map_rgba_f(0.0, 0.0, 0.0, 1.0));
+		printf("no bg\n");
 	}
 	if(csd_game.stage.animation[CSD_THEME_ANIMATION_PLAYGROUND])
 	{

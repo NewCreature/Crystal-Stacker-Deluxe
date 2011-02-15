@@ -205,8 +205,6 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     int rw, rh, r, g, b;
     int bw, bh, tw, th, mw, mh;
     int scale_w, scale_h;
-    float a = 1.0;
-    int block_chart[16] = {9, 0, 1, 2, 3, 4, 5, 6};
 	ALLEGRO_COLOR palette[256];
     ALLEGRO_BITMAP * block_image;
     ALLEGRO_BITMAP * block_flash_image;
@@ -214,6 +212,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     ALLEGRO_BITMAP * bp;
     ALLEGRO_STATE old_state;
     ALLEGRO_PATH * music_path = NULL;
+    T3F_ANIMATION * tile_ap[40] = {NULL};
 
     file = al_fopen(al_path_cstr(tp->path, '/'), "r");
     if(file == NULL)
@@ -229,7 +228,8 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
         return false;
     }
     
-    al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+    al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+    al_set_new_bitmap_flags(0);
 
     /* video card stuff */
     al_fgetc(file);
@@ -244,7 +244,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
         r = al_fgetc(file);
         g = al_fgetc(file);
         b = al_fgetc(file);
-        palette[i] = al_map_rgba_f((float)r / 63.0, (float)g / 63.0, (float)b / 63.0, a);
+        palette[i] = al_map_rgb_f((float)r / 63.0, (float)g / 63.0, (float)b / 63.0);
     }
 
     /* game board stuff */
@@ -278,7 +278,6 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     /* block stuff */
     if(header[3] == 21)
     {
-		printf("old blocks\n");
 	    bw = al_fgetc(file);
 	    bh = al_fgetc(file);
 	    for(i = 0; i < 7; i++)
@@ -293,7 +292,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 					c = al_fgetc(file);
 					if(c < 256)
 					{
-						if(c > 1)
+						if(c > 0)
 						{
 							al_put_pixel(k, j, palette[c]);
 						}
@@ -306,7 +305,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 					c = al_fgetc(file);
 					if(c < 256)
 					{
-						if(c > 1)
+						if(c > 0)
 						{
 							al_put_pixel(k, j, palette[c]);
 						}
@@ -322,9 +321,12 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
         	sp->fcrystal_animation[i] = bitmap2ani(block_flash_image);
         	scale_animation(sp->fcrystal_animation[i], scale_w, scale_h);
     	}
+		sp->block_width = bw * scale_w;
+		sp->block_height = bh * scale_h;
     }
     else if(header[3] == 22)
     {
+		printf("new blocks\n");
 	    for(i = 0; i < 7; i++)
 	    {
         	sp->crystal_animation[i] = csd_legacy_load_ani_fp(file, palette);
@@ -334,28 +336,51 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     	}
     }
 
+	/* construct bomb and wild crystals */
+	sp->crystal_animation[CSD_BLOCK_TYPE_WILD] = t3f_create_animation();
+	sp->fcrystal_animation[CSD_BLOCK_TYPE_WILD] = t3f_create_animation();
+	sp->crystal_animation[CSD_BLOCK_TYPE_BOMB] = t3f_create_animation();
+	sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB] = t3f_create_animation();
+	for(i = 1; i < 6; i++)
+	{
+		t3f_animation_add_bitmap(sp->crystal_animation[CSD_BLOCK_TYPE_WILD], sp->crystal_animation[i]->bitmap[0]);
+		t3f_animation_add_frame(sp->crystal_animation[CSD_BLOCK_TYPE_WILD], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
+		t3f_animation_add_bitmap(sp->fcrystal_animation[CSD_BLOCK_TYPE_WILD], sp->fcrystal_animation[i]->bitmap[0]);
+		t3f_animation_add_frame(sp->fcrystal_animation[CSD_BLOCK_TYPE_WILD], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
+		t3f_animation_add_bitmap(sp->crystal_animation[CSD_BLOCK_TYPE_BOMB], sp->crystal_animation[i]->bitmap[0]);
+		t3f_animation_add_frame(sp->crystal_animation[CSD_BLOCK_TYPE_BOMB], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
+		t3f_animation_add_bitmap(sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB], sp->fcrystal_animation[i]->bitmap[0]);
+		t3f_animation_add_frame(sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
+	}
+	
     /* tile stuff (old) */
     if(header[3] == 21)
     {
 	    tw = al_fgetc(file);
 	    th = al_fgetc(file);
+	    
+	    /* load tile background */
 	    if(tw > 0 && th > 0)
 	    {
-		    tile_image = al_create_bitmap(tw, th);
         	for(i = 0; i < 40; i++)
         	{
+				tile_image = al_create_bitmap(tw, th);
+				al_set_target_bitmap(tile_image);
 	            for(j = 0; j < th; j++)
             	{
 	                for(k = 0; k < tw; k++)
                 	{
+						al_put_pixel(k, j, palette[al_fgetc(file)]);
 //	                    tile_image->line[j][k] = al_fgetc(file);
-	                    al_fgetc(file);
                 	}
             	}
+            	tile_ap[i] = bitmap2ani(tile_image);
+            	scale_animation(tile_ap[i], scale_w, scale_h);
 //	            tp->tile_image[i] = bitmap2ani(tile_image);
         	}
-        	al_destroy_bitmap(tile_image);
     	}
+    	
+    	/* load bitmap background */
     	else
     	{
 			bp = al_create_bitmap(rw, rh);
@@ -406,15 +431,23 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     mh = al_fgetc(file);
     if(mw > 0 && mh > 0)
     {
+		bp = al_create_bitmap(640, 480);
+		if(!bp)
+		{
+			return false;
+		}
+		al_set_target_bitmap(bp);
+		al_clear_to_color(t3f_color_black);
 //        tp->map = malloc(tp->map_w * tp->map_h);
         for(i = 0; i < mh; i++)
         {
             for(j = 0; j < mw; j++)
             {
+				t3f_draw_animation(tile_ap[al_fgetc(file)], t3f_color_white, 0, j * tw * scale_w, i * th * scale_h, 0, 0);
 //                tp->map[i * tp->map_w + j] = al_fgetc(file);
-                al_fgetc(file);
             }
         }
+        sp->animation[CSD_THEME_ANIMATION_BACKGROUND] = bitmap2ani(bp);
     }
     al_restore_state(&old_state);
 
@@ -531,6 +564,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 	sp->stack_height = 3;
 	sp->block_types = 5;
 	sp->flash_type = 1;
+	sp->fall_type = 1;
 
     /* close the file */
     al_fclose(file);
