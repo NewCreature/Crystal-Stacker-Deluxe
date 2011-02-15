@@ -303,26 +303,8 @@ void csd_game_player_render(int player)
 	float sy;
 	
 	/* draw board */
-/*	if(csd_game.theme->flag[CSD_THEME_FLAG_CLIP_BOARD_TOP])
-	{
-		cy = csd_game.theme->flag[CSD_THEME_FLAG_BOARD0_OY];
-	}
-	if(csd_game.theme->flag[CSD_THEME_FLAG_CLIP_BOARD_BOTTOM])
-	{
-		cb = csd_game.theme->flag[CSD_THEME_FLAG_BOARD0_OY] + csd_game.theme->flag[CSD_THEME_FLAG_BOARD_H] * csd_game.theme->flag[CSD_THEME_FLAG_BLOCK_H];
-	}
-	if(csd_game.theme->flag[CSD_THEME_FLAG_CLIP_BOARD_LEFT])
-	{
-		cx = csd_game.theme->flag[CSD_THEME_FLAG_BOARD0_OX];
-	}
-	if(csd_game.theme->flag[CSD_THEME_FLAG_CLIP_BOARD_RIGHT])
-	{
-		cr = csd_game.theme->flag[CSD_THEME_FLAG_BOARD0_OX] + csd_game.theme->flag[CSD_THEME_FLAG_BOARD_W] * csd_game.theme->flag[CSD_THEME_FLAG_BLOCK_W];
-	} */
-//	set_clip(csd_game.ibuffer[0], cx, cy, cr, cb);
 	int cx, cy, cw, ch;
 	al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
-//	al_set_clipping_rectangle((float)csd_game.stage.layout[player].playground.x * t3f_3d_state.scale_x, (float)csd_game.stage.layout[player].playground.y * t3f_3d_state.scale_y, (float)(csd_game.stage.board_width * csd_game.stage.crystal_animation[0]->frame[0]->width) * t3f_3d_state.scale_x, (float)((csd_game.stage.board_height) * csd_game.stage.crystal_animation[0]->frame[0]->height) * t3f_3d_state.scale_y);
 	t3f_set_clipping_rectangle(csd_game.stage.layout[player].playground.x, csd_game.stage.layout[player].playground.y, csd_game.stage.layout[player].playground.x + csd_game.stage.board_width * csd_game.stage.block_width, csd_game.stage.layout[player].playground.y + csd_game.stage.board_height * csd_game.stage.block_height);
 	for(i = 0; i < csd_game.stage.board_height; i++)
 	{
@@ -364,7 +346,6 @@ void csd_game_player_render(int player)
 	t3f_set_clipping_rectangle(csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_width, csd_game.stage.message_height);
 	csd_render_message_queue(&csd_game.player[player].messages, csd_game.stage.font, csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y);
 	al_set_clipping_rectangle(cx, cy, cw, ch);
-//	set_clip(csd_game.ibuffer[0], 0, 0, bp->w - 1, bp->h - 1);
 	
 	/* draw preview block */
 	for(i = 0; i < csd_game.stage.stack_height; i++)
@@ -376,13 +357,11 @@ void csd_game_player_render(int player)
 	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].score.x, csd_game.stage.layout[player].score.y, 0, "%05d", csd_game.player[player].score);
 	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].block.x, csd_game.stage.layout[player].block.y, 0, "%04d", csd_game.player[player].destroyed);
 	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].level.x, csd_game.stage.layout[player].level.y, 0, "%02d", csd_game.player[player].level + 1);
-//	ncd_draw_number(csd_game.ibuffer[0], csd_game.theme->font[0], csd_game.theme->flag[CSD_THEME_FLAG_BOARD0_LX], csd_game.theme->flag[CSD_THEME_FLAG_BOARD0_LY], csd_game.player[0].level + 1, 2, csd_game.tick);
 }
 
 void csd_game_render(void)
 {
 	int i;
-//	int cx = 0, cy = 0, cr = 640.0, cb = 480.0;
 	
 	if(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND])
 	{
@@ -391,7 +370,6 @@ void csd_game_render(void)
 	else
 	{
 		al_clear_to_color(al_map_rgba_f(0.0, 0.0, 0.0, 1.0));
-		printf("no bg\n");
 	}
 	if(csd_game.stage.animation[CSD_THEME_ANIMATION_PLAYGROUND])
 	{

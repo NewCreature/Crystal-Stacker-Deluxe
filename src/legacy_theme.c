@@ -343,13 +343,13 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 	sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB] = t3f_create_animation();
 	for(i = 1; i < 6; i++)
 	{
-		t3f_animation_add_bitmap(sp->crystal_animation[CSD_BLOCK_TYPE_WILD], sp->crystal_animation[i]->bitmap[0]);
+		t3f_animation_add_bitmap(sp->crystal_animation[CSD_BLOCK_TYPE_WILD], al_clone_bitmap(sp->crystal_animation[i]->bitmap[0]));
 		t3f_animation_add_frame(sp->crystal_animation[CSD_BLOCK_TYPE_WILD], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
-		t3f_animation_add_bitmap(sp->fcrystal_animation[CSD_BLOCK_TYPE_WILD], sp->fcrystal_animation[i]->bitmap[0]);
+		t3f_animation_add_bitmap(sp->fcrystal_animation[CSD_BLOCK_TYPE_WILD], al_clone_bitmap(sp->fcrystal_animation[i]->bitmap[0]));
 		t3f_animation_add_frame(sp->fcrystal_animation[CSD_BLOCK_TYPE_WILD], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
-		t3f_animation_add_bitmap(sp->crystal_animation[CSD_BLOCK_TYPE_BOMB], sp->crystal_animation[i]->bitmap[0]);
+		t3f_animation_add_bitmap(sp->crystal_animation[CSD_BLOCK_TYPE_BOMB], al_clone_bitmap(sp->crystal_animation[i]->bitmap[0]));
 		t3f_animation_add_frame(sp->crystal_animation[CSD_BLOCK_TYPE_BOMB], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
-		t3f_animation_add_bitmap(sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB], sp->fcrystal_animation[i]->bitmap[0]);
+		t3f_animation_add_bitmap(sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB], al_clone_bitmap(sp->fcrystal_animation[i]->bitmap[0]));
 		t3f_animation_add_frame(sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
 	}
 	
