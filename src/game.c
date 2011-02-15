@@ -27,7 +27,7 @@ bool csd_game_setup(void)
 	al_stop_timer(t3f_timer);
 	memset(&csd_game, 0, sizeof(CSD_GAME));
 //	csd_theme = csd_load_theme("themes/default/theme.ini");
-	csd_theme = csd_load_theme("themes/legacy/cs.cth");
+	csd_theme = csd_load_theme("themes/legacy/fb.cth");
 	if(!csd_theme)
 	{
 		printf("Error loading theme!\n");
@@ -50,6 +50,10 @@ bool csd_game_setup(void)
 		csd_game.player[i].block.y = 0.0;
 		csd_player_block_generate(&csd_game.player[i].block);
 		csd_player_block_generate(&csd_game.player[i].block_preview);
+		csd_game.player[i].id = i;
+		csd_game.player[i].board.id = i;
+		csd_game.player[i].block.id = i;
+		csd_game_add_player_message(i, CSD_MESSAGE_SCROLL, "Get your match on!");
 	}
 	csd_game.state = CSD_GAME_STATE_PLAY;
 	csd_set_state(CSD_STATE_PLAYING);
@@ -74,6 +78,11 @@ void csd_game_init_level(int level, int player)
 	csd_game.player[player].block.vy = (float)csd_game.stage.crystal_animation[0]->frame[0]->height / (ratio * 60.0);
 	csd_game.player[player].board.width = csd_game.stage.board_width;
 	csd_game.player[player].board.height = csd_game.stage.board_height + csd_game.stage.stack_height;
+}
+
+bool csd_game_add_player_message(int player, int type, const char * message)
+{
+	return csd_queue_message(&csd_game.player[player].messages, type, message, csd_game.stage.message_width);
 }
 
 /* run game logic for a player */
@@ -232,6 +241,7 @@ void csd_game_player_logic(int player)
 			break;
 		}
 	}
+	csd_process_message_queue(&csd_game.player[player].messages, csd_game.stage.font);
 }
 
 void csd_game_projectile_logic(void)
@@ -351,6 +361,8 @@ void csd_game_player_render(int player)
 		}
 		t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].playground.x + csd_game.player[player].block.x, (i - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y + sy, 0.0, 0);
 	}
+	t3f_set_clipping_rectangle(csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_width, csd_game.stage.message_height);
+	csd_render_message_queue(&csd_game.player[player].messages, csd_game.stage.font, csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y);
 	al_set_clipping_rectangle(cx, cy, cw, ch);
 //	set_clip(csd_game.ibuffer[0], 0, 0, bp->w - 1, bp->h - 1);
 	
@@ -361,9 +373,9 @@ void csd_game_player_render(int player)
 	}
 	
 	/* draw game info */
-	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[0].score.x, csd_game.stage.layout[0].score.y, 0, "%05d", csd_game.player[0].score);
-	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[0].block.x, csd_game.stage.layout[0].block.y, 0, "%04d", csd_game.player[0].destroyed);
-	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[0].level.x, csd_game.stage.layout[0].level.y, 0, "%02d", csd_game.player[0].level + 1);
+	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].score.x, csd_game.stage.layout[player].score.y, 0, "%05d", csd_game.player[player].score);
+	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].block.x, csd_game.stage.layout[player].block.y, 0, "%04d", csd_game.player[player].destroyed);
+	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].level.x, csd_game.stage.layout[player].level.y, 0, "%02d", csd_game.player[player].level + 1);
 //	ncd_draw_number(csd_game.ibuffer[0], csd_game.theme->font[0], csd_game.theme->flag[CSD_THEME_FLAG_BOARD0_LX], csd_game.theme->flag[CSD_THEME_FLAG_BOARD0_LY], csd_game.player[0].level + 1, 2, csd_game.tick);
 }
 

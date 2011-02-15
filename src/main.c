@@ -71,6 +71,7 @@ bool csd_initialize(int argc, char * argv[])
 	{
 		return false;
 	}
+	srand(time(0));
 	return true;
 }
 

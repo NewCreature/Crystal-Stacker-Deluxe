@@ -565,6 +565,8 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 	sp->block_types = 5;
 	sp->flash_type = 1;
 	sp->fall_type = 1;
+	sp->message_width = 12 * al_get_text_width(sp->font, "A");
+	sp->message_height = al_get_font_line_height(sp->font);
 
     /* close the file */
     al_fclose(file);

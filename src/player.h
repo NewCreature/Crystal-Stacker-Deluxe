@@ -1,19 +1,22 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <allegro.h>
+#include "message.h"
 
-#define CSD_PLAYER_BOARD_W 32
-#define CSD_PLAYER_BOARD_H 32
-#define CSD_PLAYER_BLOCK_H  3
-#define CSD_PLAYER_BOARD_STATE_NORMAL 0
-#define CSD_PLAYER_BOARD_STATE_RUNS   1
-#define CSD_PLAYER_BLOCK_STATE_ON_BOARD   0
-#define CSD_PLAYER_BLOCK_STATE_TO_BOARD   1
-#define CSD_PLAYER_BLOCK_STATE_ON_PREVIEW 2
-#define CSD_PLAYER_BLOCK_STATE_TO_PREVIEW 3
-#define CSD_PLAYER_BLOCK_TYPE_NORMAL      0
-#define CSD_PLAYER_BLOCK_TYPE_BOMB        1
+/* array maximums */
+#define CSD_PLAYER_BOARD_W                32
+#define CSD_PLAYER_BOARD_H                32
+#define CSD_PLAYER_BLOCK_H                 3
+
+/* board states */
+#define CSD_PLAYER_BOARD_STATE_NORMAL      0
+#define CSD_PLAYER_BOARD_STATE_RUNS        1
+
+/* block states */
+#define CSD_PLAYER_BLOCK_STATE_ON_BOARD    0
+#define CSD_PLAYER_BLOCK_STATE_TO_BOARD    1
+#define CSD_PLAYER_BLOCK_STATE_ON_PREVIEW  2
+#define CSD_PLAYER_BLOCK_STATE_TO_PREVIEW  3
 
 typedef struct
 {
@@ -29,6 +32,8 @@ typedef struct
 	int state;
 	int type;
 	
+	int id;
+	
 } CSD_PLAYER_BLOCK;
 
 typedef struct
@@ -40,6 +45,8 @@ typedef struct
 	int state;
 	int state_counter;
 	
+	int id;
+	
 } CSD_PLAYER_BOARD;
 
 typedef struct
@@ -48,6 +55,7 @@ typedef struct
 	CSD_PLAYER_BLOCK block;
 	CSD_PLAYER_BLOCK block_preview;
 	CSD_PLAYER_BOARD board;
+	CSD_MESSAGE_QUEUE messages;
 	
 	int score;
 	int destroyed;
@@ -58,6 +66,8 @@ typedef struct
 	
 	/* internally used */
 	int combo, removed;
+	
+	int id;
 	
 } CSD_PLAYER;
 

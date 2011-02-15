@@ -66,6 +66,8 @@ typedef struct
 	int block_height;
 	int board_width;
 	int board_height;
+	int message_width;
+	int message_height;
 	int stack_height;
 	int block_types;
 	int flash_type;

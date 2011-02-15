@@ -1,4 +1,5 @@
 #include "theme.h"
+#include "game.h"
 #include "player.h"
 #include "core.h"
 
@@ -92,7 +93,7 @@ void csd_player_block_generate(CSD_PLAYER_BLOCK * bp)
 //    else if((rand() % BOMB_PROB == 0 && cs_options.bomb))
     else if((rand() % BOMB_PROB == 0))
     {
-//        queue_message(&gp->messages, 2, "            Here comes a BOMB!");
+		csd_game_add_player_message(bp->id, CSD_MESSAGE_SCROLL, "Here comes a BOMB!");
         bp->data[0] = CSD_BLOCK_TYPE_BOMB;
         bp->data[1] = CSD_BLOCK_TYPE_BOMB;
         bp->data[2] = CSD_BLOCK_TYPE_BOMB;
@@ -104,7 +105,6 @@ void csd_player_block_generate(CSD_PLAYER_BLOCK * bp)
         for(i = 0; i < CSD_PLAYER_BLOCK_H; i++)
         {
             /* wild cards every once in a while */
-//            if(rand() % WILD_PROB == 0 && cs_options.wild_card)
             if(rand() % WILD_PROB == 0)
             {
                 bp->data[i] = CSD_BLOCK_TYPE_WILD;

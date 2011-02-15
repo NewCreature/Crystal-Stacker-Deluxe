@@ -30,6 +30,7 @@ typedef struct
 bool csd_game_setup(void);
 void csd_game_exit(void);
 void csd_game_init_level(int level, int player);
+bool csd_game_add_player_message(int player, int type, const char * message);
 void csd_game_logic(void);
 void csd_game_render(void);
 
