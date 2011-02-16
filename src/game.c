@@ -351,7 +351,7 @@ void csd_game_player_render(int player)
 		t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].playground.x + csd_game.player[player].block.x, (i - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y + sy, 0.0, 0);
 	}
 	t3f_set_clipping_rectangle(csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_width, csd_game.stage.message_height);
-	csd_render_message_queue(&csd_game.player[player].messages, csd_game.stage.font, csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y);
+	csd_render_message_queue(&csd_game.player[player].messages, csd_game.stage.font, csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_scroll_type == 0);
 	al_set_clipping_rectangle(cx, cy, cw, ch);
 	
 	/* draw preview block */

@@ -28,6 +28,6 @@ typedef struct
 void csd_clear_message_queue(CSD_MESSAGE_QUEUE * qp);
 bool csd_queue_message(CSD_MESSAGE_QUEUE * qp, int type, const char * message, int pos);
 void csd_process_message_queue(CSD_MESSAGE_QUEUE * qp, ALLEGRO_FONT * fp);
-void csd_render_message_queue(CSD_MESSAGE_QUEUE * qp, ALLEGRO_FONT * fp, float x, float y);
+void csd_render_message_queue(CSD_MESSAGE_QUEUE * qp, ALLEGRO_FONT * fp, float x, float y, int smooth);
 
 #endif

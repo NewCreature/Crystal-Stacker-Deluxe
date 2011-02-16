@@ -54,27 +54,36 @@ typedef struct
 typedef struct
 {
 	
+	/* data */
 	T3F_ANIMATION * animation[CSD_THEME_ANIMATIONS];
+	T3F_ANIMATION * crystal_animation[CSD_BLOCK_MAX_TYPES];
+	T3F_ANIMATION * fcrystal_animation[CSD_BLOCK_MAX_TYPES];
 	ALLEGRO_FONT * font;
 	ALLEGRO_SAMPLE * sample[CSD_THEME_SAMPLES];
+	
+	/* layout */
 	CSD_STAGE_LAYOUT layout[CSD_MAX_PLAYERS];
 	CSD_STAGE_OBJECT time;
 	CSD_STAGE_OBJECT best_time;
 	CSD_STAGE_OBJECT high_score;
 	CSD_STAGE_OBJECT message;
-	int block_width;
-	int block_height;
+	
+	/* board settings */
 	int board_width;
 	int board_height;
-	int message_width;
-	int message_height;
+	
+	/* block settings */
+	int block_width;
+	int block_height;
 	int stack_height;
 	int block_types;
 	int flash_type;
 	int fall_type;
 	
-	T3F_ANIMATION * crystal_animation[CSD_BLOCK_MAX_TYPES];
-	T3F_ANIMATION * fcrystal_animation[CSD_BLOCK_MAX_TYPES];
+	/* message settings */
+	int message_width;
+	int message_height;
+	int message_scroll_type;
 	
 } CSD_STAGE;
 

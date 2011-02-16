@@ -63,15 +63,25 @@ void csd_process_message_queue(CSD_MESSAGE_QUEUE * qp, ALLEGRO_FONT * fp)
 	}
 }
 
-void csd_render_message_queue(CSD_MESSAGE_QUEUE * qp, ALLEGRO_FONT * fp, float x, float y)
+void csd_render_message_queue(CSD_MESSAGE_QUEUE * qp, ALLEGRO_FONT * fp, float x, float y, int smooth)
 {
+	int w;
+	
 	if(qp->messages > 0)
 	{
 		switch(qp->message[0].type)
 		{
 			case CSD_MESSAGE_SCROLL:
 			{
-				al_draw_text(fp, t3f_color_white, x + (float)qp->message[0].pos, y, 0, qp->message[0].text);
+				if(smooth)
+				{
+					al_draw_text(fp, t3f_color_white, x + (float)qp->message[0].pos, y, 0, qp->message[0].text);
+				}
+				else
+				{
+					w = al_get_text_width(fp, "A");
+					al_draw_text(fp, t3f_color_white, ((int)(x + (float)qp->message[0].pos) / w) * w, y, 0, qp->message[0].text);
+				}
 				break;
 			}
 			case CSD_MESSAGE_FLASH:
