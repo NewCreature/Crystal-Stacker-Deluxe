@@ -8,6 +8,7 @@
 /* main data */
 int csd_state = CSD_STATE_TITLE;
 ALLEGRO_BITMAP * csd_bitmap[CSD_MAX_BITMAPS] = {NULL};
+int csd_high_score = 1000;
 
 int frame = 0;
 int done = 0;
@@ -62,6 +63,8 @@ void csd_render(void)
 
 bool csd_initialize(int argc, char * argv[])
 {
+	const char * val;
+	
 	if(!t3f_initialize("Crystal Stacker Deluxe", 640, 480, 60.0, csd_logic, csd_render, T3F_DEFAULT | T3F_USE_MOUSE))
 	{
 		return false;
@@ -70,6 +73,11 @@ bool csd_initialize(int argc, char * argv[])
 	if(!csd_title_setup())
 	{
 		return false;
+	}
+	val = al_get_config_value(t3f_config, "Game Data", "High Score");
+	if(val)
+	{
+		csd_high_score = atoi(val);
 	}
 	srand(time(0));
 	return true;

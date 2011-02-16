@@ -63,8 +63,12 @@ bool csd_game_setup(void)
 
 void csd_game_exit(void)
 {
+	char buffer[256] = {0};
+	
 	csd_free_stage(&csd_game.stage);
 	t3f_stop_music();
+	sprintf(buffer, "%d", csd_high_score);
+	al_set_config_value(t3f_config, "Game Data", "High Score", buffer);
 	csd_set_state(CSD_STATE_TITLE);
 }
 
@@ -242,6 +246,10 @@ void csd_game_player_logic(int player)
 				else
 				{
 		            csd_game.player[player].score += csd_game.player[player].combo * (((csd_game.player[player].removed * 5) * ((csd_game.player[player].level * 100) / 4 + 100)) / 100);
+		            if(csd_game.player[player].score > csd_high_score)
+		            {
+						csd_high_score = csd_game.player[player].score;
+					}
 					csd_game.player[player].board.state = CSD_PLAYER_BOARD_STATE_NORMAL;
 				}
 			}
@@ -387,6 +395,7 @@ void csd_game_render(void)
 	{
 		csd_game_player_render(i);
 	}
+	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.high_score.x, csd_game.stage.high_score.y, 0, "%05d", csd_high_score);
 	
 	for(i = 0; i < 64; i++)
 	{
