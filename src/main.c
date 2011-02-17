@@ -1,16 +1,22 @@
 #include "t3f/t3f.h"
+#include "t3net/t3net.h"
 #include <allegro5/allegro_ttf.h>
 #include "main.h"
 #include "title.h"
+#include "leaderboard.h"
 #include "theme.h"
 #include "game.h"
 
 /* main data */
 int csd_state = CSD_STATE_TITLE;
+int csd_option[CSD_MAX_OPTIONS] = {0};
 ALLEGRO_BITMAP * csd_bitmap[CSD_MAX_BITMAPS] = {NULL};
 int csd_high_score = 1000;
+T3NET_LEADERBOARD * csd_leaderboard = NULL;
+int csd_leaderboard_position = -1;
+char csd_upload_name[256] = {0};
 
-int frame = 0;
+int csd_tick = 0;
 int done = 0;
 
 void csd_logic(void)
@@ -32,7 +38,13 @@ void csd_logic(void)
 			csd_game_logic();
 			break;
 		}
+		case CSD_STATE_LEADERBOARD:
+		{
+			csd_leaderboard_logic();
+			break;
+		}
 	}
+	csd_tick++;
 }
 
 void csd_render(void)
@@ -47,37 +59,58 @@ void csd_render(void)
 		case CSD_STATE_PLAYING:
 		{
 			csd_game_render();
-/*			draw_animation(csd_stage->animation[CSD_THEME_ANIMATION_BACKGROUND], 0, 0.0, 0.0, 0.0, 0);
-			draw_animation(csd_stage->animation[CSD_THEME_ANIMATION_PLAYGROUND], 0, csd_stage->playground_x[0], csd_stage->playground_y[0], 0.0, 0);
-			for(i = 0; i < 14; i++)
-			{
-				for(j = 0; j < 6; j++)
-				{
-					draw_animation(csd_stage->crystal_animation[rand() % 5], 0, j * 32, i * 32, 0.0, 0);
-				}
-			} */
+			break;
+		}
+		case CSD_STATE_LEADERBOARD:
+		{
+			csd_leaderboard_render();
 			break;
 		}
 	}
 }
 
-bool csd_initialize(int argc, char * argv[])
+void csd_read_config(void)
 {
 	const char * val;
 	
+	/* local high score */
+	val = al_get_config_value(t3f_config, "Game Data", "High Score");
+	if(val)
+	{
+		csd_high_score = atoi(val);
+	}
+	
+	/* upload scores */
+	csd_option[CSD_OPTION_UPLOAD] = 1;
+	val = al_get_config_value(t3f_config, "Options", "Upload Scores");
+	if(val)
+	{
+		if(strcasecmp(val, "true"))
+		{
+			csd_option[CSD_OPTION_UPLOAD] = 0;
+		}
+	}
+
+	/* upload name */
+	strcpy(csd_upload_name, "Unnamed");
+	val = al_get_config_value(t3f_config, "Options", "Upload Name");
+	if(val)
+	{
+		strcpy(csd_upload_name, val);
+	}
+}
+
+bool csd_initialize(int argc, char * argv[])
+{
 	if(!t3f_initialize("Crystal Stacker Deluxe", 640, 480, 60.0, csd_logic, csd_render, T3F_DEFAULT | T3F_USE_MOUSE))
 	{
 		return false;
 	}
 	al_init_ttf_addon();
+	csd_read_config();
 	if(!csd_title_setup())
 	{
 		return false;
-	}
-	val = al_get_config_value(t3f_config, "Game Data", "High Score");
-	if(val)
-	{
-		csd_high_score = atoi(val);
 	}
 	srand(time(0));
 	return true;

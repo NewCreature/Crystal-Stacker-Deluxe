@@ -21,12 +21,38 @@ int csd_menu_proc_main_options(int i, void * p)
 
 int csd_menu_proc_main_leaderboards(int i, void * p)
 {
+	al_stop_timer(t3f_timer);
+	if(csd_leaderboard)
+	{
+		t3net_destroy_leaderboard(csd_leaderboard);
+	}
+	csd_leaderboard = t3net_get_leaderboard("http://www.t3-i.com/leaderboards/query.php", "csd", "alpha", "classic", "0", 10, 0);
+	if(csd_leaderboard)
+	{
+		csd_leaderboard_position = -1;
+		csd_current_menu = CSD_MENU_LEADERBOARD;
+		csd_set_state(CSD_STATE_LEADERBOARD);
+	}
+	al_start_timer(t3f_timer);
 	return 1;
 }
 
 int csd_menu_proc_main_quit(int i, void * p)
 {
 	csd_exit();
+	return 1;
+}
+
+int csd_menu_proc_leaderboard_exit(int i, void * p)
+{
+	csd_current_menu = CSD_MENU_MAIN;
+	csd_set_state(CSD_STATE_TITLE);
+	return 1;
+}
+
+int csd_menu_proc_leaderboard_replay(int i, void * p)
+{
+	csd_game_setup();
 	return 1;
 }
 
@@ -53,6 +79,23 @@ bool csd_title_setup(void)
 	t3f_add_gui_text_element(csd_menu[CSD_MENU_MAIN], csd_menu_proc_main_leaderboards, "Leaderboards", csd_menu_font[CSD_MENU_FONT_NORMAL], 320, 48, al_map_rgba_f(1.0, 1.0, 1.0, 1.0), T3F_GUI_ELEMENT_CENTRE | T3F_GUI_ELEMENT_SHADOW);
 	t3f_add_gui_text_element(csd_menu[CSD_MENU_MAIN], csd_menu_proc_main_quit, "Quit", csd_menu_font[CSD_MENU_FONT_NORMAL], 320, 72, al_map_rgba_f(1.0, 1.0, 1.0, 1.0), T3F_GUI_ELEMENT_CENTRE | T3F_GUI_ELEMENT_SHADOW);
 	t3f_center_gui(csd_menu[CSD_MENU_MAIN], 0, 480);
+	
+	/* leaderboard menu */
+	csd_menu[CSD_MENU_LEADERBOARD] = t3f_create_gui(0, 0);
+	if(!csd_menu[CSD_MENU_LEADERBOARD])
+	{
+		return false;
+	}
+	t3f_add_gui_text_element(csd_menu[CSD_MENU_LEADERBOARD], csd_menu_proc_leaderboard_exit, "< Back", csd_menu_font[CSD_MENU_FONT_NORMAL], 0, 480 - 24, al_map_rgba_f(1.0, 1.0, 1.0, 1.0), T3F_GUI_ELEMENT_SHADOW);
+	
+	/* leaderboard menu (game over version) */
+	csd_menu[CSD_MENU_LEADERBOARD_GO] = t3f_create_gui(0, 0);
+	if(!csd_menu[CSD_MENU_LEADERBOARD_GO])
+	{
+		return false;
+	}
+	t3f_add_gui_text_element(csd_menu[CSD_MENU_LEADERBOARD_GO], csd_menu_proc_leaderboard_exit, "< Back to Menu", csd_menu_font[CSD_MENU_FONT_NORMAL], 0, 480 - 24, al_map_rgba_f(1.0, 1.0, 1.0, 1.0), T3F_GUI_ELEMENT_SHADOW);
+	t3f_add_gui_text_element(csd_menu[CSD_MENU_LEADERBOARD_GO], csd_menu_proc_leaderboard_replay, "Play Again >", csd_menu_font[CSD_MENU_FONT_NORMAL], 640 - al_get_text_width(csd_menu_font[CSD_MENU_FONT_NORMAL], "Play Again >"), 480 - 24, al_map_rgba_f(1.0, 1.0, 1.0, 1.0), T3F_GUI_ELEMENT_SHADOW);
 	
 	return true;
 }

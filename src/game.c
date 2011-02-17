@@ -1,7 +1,9 @@
 #include "t3f/t3f.h"
 #include "t3f/music.h"
 #include "main.h"
+#include "title.h"
 #include "game.h"
+#include "leaderboard.h"
 #include "core.h"
 
 int level_chart[20] = {670, 600, 540, 480, 420, 370, 320, 280, 240, 200, 170, 140, 120, 100, 80, 70, 60, 55, 50, 45};
@@ -64,12 +66,53 @@ bool csd_game_setup(void)
 void csd_game_exit(void)
 {
 	char buffer[256] = {0};
+	int i;
+	
+	/* handle high scores */
+	sprintf(buffer, "%d", csd_high_score);
+	al_set_config_value(t3f_config, "Game Data", "High Score", buffer);
+	if(csd_option[CSD_OPTION_UPLOAD])
+	{
+		al_stop_timer(t3f_timer);
+		t3net_upload_score("http://www.t3-i.com/leaderboards/poll.php", "csd", "alpha", "classic", "0", csd_upload_name, csd_encode_leaderboard_score(csd_game.player[0].score));
+		if(csd_leaderboard)
+		{
+			t3net_destroy_leaderboard(csd_leaderboard);
+		}
+		csd_leaderboard = t3net_get_leaderboard("http://www.t3-i.com/leaderboards/query.php", "csd", "alpha", "classic", "0", 10, 0);
+		if(csd_leaderboard)
+		{
+			csd_leaderboard_position = -1;
+			for(i = 0; i < csd_leaderboard->entries; i++)
+			{
+				if(csd_game.player[0].score == csd_decode_leaderboard_score(csd_leaderboard->entry[i]->score) && !strcmp(csd_upload_name, csd_leaderboard->entry[i]->name))
+				{
+					csd_leaderboard_position = i;
+					break;
+				}
+			}
+			csd_current_menu = CSD_MENU_LEADERBOARD_GO;
+			csd_set_state(CSD_STATE_LEADERBOARD);
+//			lingo_state = LINGO_STATE_LEADERBOARD;
+//			lingo_current_menu = LINGO_MENU_LEADERBOARD;
+		}
+		else
+		{
+			csd_current_menu = CSD_MENU_MAIN;
+			csd_set_state(CSD_STATE_TITLE);
+//			lingo_game_state = LINGO_GAME_STATE_OVER;
+//			lingo_current_game_menu = LINGO_GAME_MENU_OVER;
+		}
+		al_start_timer(t3f_timer);
+	}
+	else
+	{
+		csd_current_menu = CSD_MENU_MAIN;
+		csd_set_state(CSD_STATE_TITLE);
+	}
 	
 	csd_free_stage(&csd_game.stage);
 	t3f_stop_music();
-	sprintf(buffer, "%d", csd_high_score);
-	al_set_config_value(t3f_config, "Game Data", "High Score", buffer);
-	csd_set_state(CSD_STATE_TITLE);
 }
 
 void csd_game_init_level(int level, int player)
