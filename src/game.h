@@ -5,15 +5,16 @@
 #include "player.h"
 #include "3dsprite.h"
 
-#define CSD_MAX_PLAYERS      4
+#define CSD_MAX_PLAYERS          4
 
-#define CSD_REPEAT_DELAY    14
-#define CSD_REPEAT_SPEED     7
+#define CSD_REPEAT_DELAY        14
+#define CSD_REPEAT_SPEED         7
 
-#define CSD_GAME_STATE_INTRO 0
-#define CSD_GAME_STATE_PLAY  1
-#define CSD_GAME_STATE_PAUSE 2
-#define CSD_GAME_STATE_OVER  3
+#define CSD_GAME_STATE_INTRO     0
+#define CSD_GAME_STATE_PLAY      1
+#define CSD_GAME_STATE_PAUSE     2
+#define CSD_GAME_STATE_OVER      3
+#define CSD_GAME_STATE_OVER_MENU 4
 
 typedef struct
 {

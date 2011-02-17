@@ -441,8 +441,25 @@ void csd_game_logic(void)
 			}
 			else if(csd_game.player[0].messages.messages == 0)
 			{
-				csd_game_exit();
+				
+				/* go to leaderboards if upload is enabled */
+				if(csd_option[CSD_OPTION_UPLOAD])
+				{
+					csd_game_exit();
+				}
+				
+				/* otherwise show menu */
+				else
+				{
+					csd_current_menu = CSD_MENU_GAME_OVER;
+					csd_game.state = CSD_GAME_STATE_OVER_MENU;
+				}
 			}
+			break;
+		}
+		case CSD_GAME_STATE_OVER_MENU:
+		{
+			t3f_process_gui(csd_menu[csd_current_menu]);
 			break;
 		}
 	}
@@ -543,5 +560,10 @@ void csd_game_render(void)
 	for(i = 0; i < 64; i++)
 	{
 		sprite_3d_draw(&csd_game.sprite[i]);
+	}
+	if(csd_game.state == CSD_GAME_STATE_OVER_MENU)
+	{
+		al_draw_filled_rectangle(0, 0, 640, 480, al_map_rgba_f(0.0, 0.0, 0.0, 0.5));
+		t3f_render_gui(csd_menu[csd_current_menu]);
 	}
 }

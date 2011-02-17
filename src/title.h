@@ -10,6 +10,7 @@
 #define CSD_MENU_PLAY           1
 #define CSD_MENU_LEADERBOARD    2
 #define CSD_MENU_LEADERBOARD_GO 3
+#define CSD_MENU_GAME_OVER      4
 
 #define CSD_MAX_MENU_FONTS  32
 
