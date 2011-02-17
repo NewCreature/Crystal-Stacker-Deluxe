@@ -234,7 +234,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		}
 	}
 	
-	value = al_get_config_value(tp->config, stage_name, "Board Width");
+/*	value = al_get_config_value(tp->config, stage_name, "Board Width");
 	if(value)
 	{
 		sp->board_width = atol(value);;
@@ -251,8 +251,13 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	else
 	{
 		sp->board_height = 14;
-	}
-	value = al_get_config_value(tp->config, stage_name, "Stack Height");
+	} */
+	sp->board_width = 6;
+	sp->board_height = 14;
+	sp->block_width = sp->crystal_animation[0]->frame[0]->width;
+	sp->block_height = sp->crystal_animation[0]->frame[0]->height;
+	
+/*	value = al_get_config_value(tp->config, stage_name, "Stack Height");
 	if(value)
 	{
 		sp->stack_height = atol(value);;
@@ -260,7 +265,8 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	else
 	{
 		sp->stack_height = 3;
-	}
+	} */
+	sp->stack_height = 3;
 	
 	value = al_get_config_value(tp->config, stage_name, "Flash Type");
 	if(value)

@@ -30,8 +30,8 @@ bool csd_game_setup(void)
 	
 	al_stop_timer(t3f_timer);
 	memset(&csd_game, 0, sizeof(CSD_GAME));
-//	csd_theme = csd_load_theme("themes/default/theme.ini");
-	csd_theme = csd_load_theme("themes/legacy/fb.cth");
+	csd_theme = csd_load_theme("themes/default/theme.ini");
+//	csd_theme = csd_load_theme("themes/legacy/fb.cth");
 	if(!csd_theme)
 	{
 		printf("Error loading theme!\n");
