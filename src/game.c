@@ -31,7 +31,7 @@ bool csd_game_setup(void)
 	al_stop_timer(t3f_timer);
 	memset(&csd_game, 0, sizeof(CSD_GAME));
 	csd_theme = csd_load_theme("themes/default/theme.ini");
-//	csd_theme = csd_load_theme("themes/legacy/fb.cth");
+//	csd_theme = csd_load_theme("themes/legacy/stone.cth");
 	if(!csd_theme)
 	{
 		printf("Error loading theme!\n");
@@ -475,6 +475,7 @@ void csd_game_player_render(int player)
 	int cx, cy, cw, ch;
 	al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
 	t3f_set_clipping_rectangle(csd_game.stage.layout[player].playground.x, csd_game.stage.layout[player].playground.y, csd_game.stage.layout[player].playground.x + csd_game.stage.board_width * csd_game.stage.block_width, csd_game.stage.layout[player].playground.y + csd_game.stage.board_height * csd_game.stage.block_height);
+	al_hold_bitmap_drawing(true);
 	for(i = 0; i < csd_game.stage.board_height; i++)
 	{
 		for(j = 0; j < csd_game.stage.board_width; j++)
@@ -515,11 +516,13 @@ void csd_game_player_render(int player)
 			t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].playground.x + csd_game.player[player].block.x, (i - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y + sy, 0.0, 0);
 		}
 	}
+	al_hold_bitmap_drawing(false);
 	t3f_set_clipping_rectangle(csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_width, csd_game.stage.message_height);
 	csd_render_message_queue(&csd_game.player[player].messages, csd_game.stage.font, csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_scroll_type == 0);
 	al_set_clipping_rectangle(cx, cy, cw, ch);
 	
 	/* draw preview block */
+	al_hold_bitmap_drawing(true);
 	if(!csd_game.player[player].lost)
 	{
 		for(i = 0; i < csd_game.stage.stack_height; i++)
@@ -532,6 +535,7 @@ void csd_game_player_render(int player)
 	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].score.x, csd_game.stage.layout[player].score.y, 0, "%05d", csd_game.player[player].score);
 	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].block.x, csd_game.stage.layout[player].block.y, 0, "%04d", csd_game.player[player].destroyed);
 	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.layout[player].level.x, csd_game.stage.layout[player].level.y, 0, "%02d", csd_game.player[player].level + 1);
+	al_hold_bitmap_drawing(false);
 }
 
 void csd_game_render(void)
@@ -557,10 +561,12 @@ void csd_game_render(void)
 	}
 	al_draw_textf(csd_game.stage.font, t3f_color_white, csd_game.stage.high_score.x, csd_game.stage.high_score.y, 0, "%05d", csd_high_score);
 	
+	al_hold_bitmap_drawing(true);
 	for(i = 0; i < 64; i++)
 	{
 		sprite_3d_draw(&csd_game.sprite[i]);
 	}
+	al_hold_bitmap_drawing(false);
 	if(csd_game.state == CSD_GAME_STATE_OVER_MENU)
 	{
 		al_draw_filled_rectangle(0, 0, 640, 480, al_map_rgba_f(0.0, 0.0, 0.0, 0.5));

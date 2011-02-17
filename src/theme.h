@@ -62,6 +62,7 @@ typedef struct
 	T3F_ANIMATION * fcrystal_animation[CSD_BLOCK_MAX_TYPES];
 	ALLEGRO_FONT * font;
 	ALLEGRO_SAMPLE * sample[CSD_THEME_SAMPLES];
+	T3F_ATLAS * atlas;
 	
 	/* layout */
 	CSD_STAGE_LAYOUT layout[CSD_MAX_PLAYERS];

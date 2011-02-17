@@ -104,6 +104,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	char vname[256] = {0};
 	const char * value;
 	int fs = 16;
+	bool reatlas = false;
 	int i;
 	
 	value = al_get_config_value(tp->config, "Settings", "Legacy");
@@ -121,6 +122,15 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	if(stage == 0)
 	{
 		memset(sp, 0, sizeof(CSD_STAGE));
+		sp->atlas = t3f_create_atlas(T3F_ATLAS_SPRITES, 1024, 1024);
+	}
+	
+	/* play music first so we can here it while things load */
+	value = al_get_config_value(tp->config, stage_name, "Music");
+	if(value)
+	{
+		al_set_path_filename(tp->path, value);
+		t3f_play_music(al_path_cstr(tp->path, '/'));
 	}
 	
 	/* load the font */
@@ -189,6 +199,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 			{
 				printf("Fuck!\n");
 			}
+			reatlas = true;
 		}
 	}
 	
@@ -211,6 +222,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 			{
 				printf("Fuck!\n");
 			}
+			reatlas = true;
 		}
 	}
 	
@@ -223,13 +235,8 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 			value = al_get_config_value(tp->config, stage_name, vname);
 			if(value)
 			{
-				printf("%s\n", value);
 				al_set_path_filename(tp->path, value);
 				sp->sample[i] = al_load_sample(al_path_cstr(tp->path, '/'));
-				if(sp->sample[i])
-				{
-					printf("loaded!\n");
-				}
 			}
 		}
 	}
@@ -281,12 +288,30 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		sp->flash_type = CSD_THEME_FLASH_OVERLAY;
 	}
 	
-	/* play music */
-	value = al_get_config_value(tp->config, stage_name, "Music");
-	if(value)
+	if(reatlas)
 	{
-		al_set_path_filename(tp->path, value);
-		t3f_play_music(al_path_cstr(tp->path, '/'));
+		if(sp->atlas)
+		{
+			t3f_destroy_atlas(sp->atlas);
+		}
+		sp->atlas = t3f_create_atlas(T3F_ATLAS_SPRITES, 1024, 1024);
+		if(sp->atlas)
+		{
+			for(i = 0; i < CSD_BLOCK_MAX_TYPES; i++)
+			{
+				if(sp->crystal_animation[i])
+				{
+					t3f_add_animation_to_atlas(sp->atlas, sp->crystal_animation[i]);
+				}
+			}
+			for(i = 0; i < CSD_BLOCK_MAX_TYPES; i++)
+			{
+				if(sp->fcrystal_animation[i])
+				{
+					t3f_add_animation_to_atlas(sp->atlas, sp->fcrystal_animation[i]);
+				}
+			}
+		}
 	}
 	
 	return true;
@@ -332,5 +357,9 @@ void csd_free_stage(CSD_STAGE * sp)
 			t3f_destroy_animation(sp->fcrystal_animation[i]);
 			sp->fcrystal_animation[i] = NULL;
 		}
+	}
+	if(sp->atlas)
+	{
+		t3f_destroy_atlas(sp->atlas);
 	}
 }

@@ -580,5 +580,28 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     t3f_play_music(al_path_cstr(music_path, '/'));
     al_destroy_path(music_path);
 
+	if(sp->atlas)
+	{
+		t3f_destroy_atlas(sp->atlas);
+	}
+	sp->atlas = t3f_create_atlas(T3F_ATLAS_SPRITES, 1024, 1024);
+	if(sp->atlas)
+	{
+		for(i = 0; i < CSD_BLOCK_MAX_TYPES; i++)
+		{
+			if(sp->crystal_animation[i])
+			{
+				t3f_add_animation_to_atlas(sp->atlas, sp->crystal_animation[i]);
+			}
+		}
+		for(i = 0; i < CSD_BLOCK_MAX_TYPES; i++)
+		{
+			if(sp->fcrystal_animation[i])
+			{
+				t3f_add_animation_to_atlas(sp->atlas, sp->fcrystal_animation[i]);
+			}
+		}
+	}
+	
     return 1;
 }
