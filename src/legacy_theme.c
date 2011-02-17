@@ -143,6 +143,7 @@ ALLEGRO_FONT * csd_legacy_load_ncdfont_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[2
     /* read font data to file */
     for(i = 0; i < 256; i++)
     {
+        al_lock_bitmap(cbp, al_get_bitmap_format(cbp), ALLEGRO_LOCK_WRITEONLY);
 		al_set_target_bitmap(cbp);
         for(j = 0; j < fh; j++)
         {
@@ -159,6 +160,7 @@ ALLEGRO_FONT * csd_legacy_load_ncdfont_fp(ALLEGRO_FILE * fp, ALLEGRO_COLOR pal[2
 				}
             }
         }
+        al_unlock_bitmap(cbp);
         al_set_target_bitmap(bp);
         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
         al_draw_scaled_bitmap(cbp, 0, 0, fw, fh, 1 + (i % 16) * (fsw + 1), 1 + (i / 16) * (fsh + 1), fsw, fsh, 0);
@@ -284,6 +286,8 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 	    {
 			block_image = al_create_bitmap(bw, bh);
 			block_flash_image = al_create_bitmap(bw, bh);
+			al_lock_bitmap(block_image, al_get_bitmap_format(block_image), ALLEGRO_LOCK_WRITEONLY);
+			al_lock_bitmap(block_flash_image, al_get_bitmap_format(block_flash_image), ALLEGRO_LOCK_WRITEONLY);
         	for(j = 0; j < bh; j++)
         	{
 	            for(k = 0; k < bw; k++)
@@ -316,6 +320,8 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 					}
             	}
         	}
+        	al_unlock_bitmap(block_image);
+        	al_unlock_bitmap(block_flash_image);
         	sp->crystal_animation[i] = bitmap2ani(block_image);
         	scale_animation(sp->crystal_animation[i], scale_w, scale_h);
         	sp->fcrystal_animation[i] = bitmap2ani(block_flash_image);
@@ -368,6 +374,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
         	for(i = 0; i < 40; i++)
         	{
 				tile_image = al_create_bitmap(tw, th);
+				al_lock_bitmap(tile_image, al_get_bitmap_format(tile_image), ALLEGRO_LOCK_WRITEONLY);
 				al_set_target_bitmap(tile_image);
 	            for(j = 0; j < th; j++)
             	{
@@ -377,6 +384,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 //	                    tile_image->line[j][k] = al_fgetc(file);
                 	}
             	}
+            	al_unlock_bitmap(tile_image);
             	tile_ap[i] = bitmap2ani(tile_image);
             	scale_animation(tile_ap[i], scale_w, scale_h);
 //	            tp->tile_image[i] = bitmap2ani(tile_image);
@@ -387,6 +395,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     	else
     	{
 			bp = al_create_bitmap(rw, rh);
+			al_lock_bitmap(bp, al_get_bitmap_format(bp), ALLEGRO_LOCK_WRITEONLY);
 			al_set_target_bitmap(bp);
 	        for(i = 0; i < rh; i++)
         	{
@@ -395,6 +404,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 					al_put_pixel(j, i, palette[al_fgetc(file)]);
             	}
         	}
+        	al_unlock_bitmap(bp);
         	sp->animation[CSD_THEME_ANIMATION_BACKGROUND] = bitmap2ani(bp);
         	scale_animation(sp->animation[CSD_THEME_ANIMATION_BACKGROUND], scale_w, scale_h);
     	}
@@ -415,6 +425,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     	else
     	{
 			bp = al_create_bitmap(rw, rh);
+			al_lock_bitmap(bp, al_get_bitmap_format(bp), ALLEGRO_LOCK_WRITEONLY);
 			al_set_target_bitmap(bp);
 	        for(i = 0; i < rh; i++)
         	{
@@ -423,6 +434,9 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 					al_put_pixel(j, i, palette[al_fgetc(file)]);
             	}
         	}
+        	al_unlock_bitmap(bp);
+        	sp->animation[CSD_THEME_ANIMATION_BACKGROUND] = bitmap2ani(bp);
+        	scale_animation(sp->animation[CSD_THEME_ANIMATION_BACKGROUND], scale_w, scale_h);
     	}
     }
 

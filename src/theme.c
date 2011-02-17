@@ -163,6 +163,18 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		sp->animation[CSD_THEME_ANIMATION_PLAYGROUND] = csd_load_animation(tp->path);
 	}
 	
+	/* block size */
+	value = al_get_config_value(tp->config, stage_name, "Block Width");
+	if(value)
+	{
+		sp->block_width = atoi(value);
+	}
+	value = al_get_config_value(tp->config, stage_name, "Block Height");
+	if(value)
+	{
+		sp->block_height = atoi(value);
+	}
+	
 	/* load the playground positions */
 	for(i = 0; i < tp->max_players; i++)
 	{
@@ -170,13 +182,42 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		value = al_get_config_value(tp->config, stage_name, vname);
 		if(value)
 		{
-			sp->layout[i].playground.x = atol(value);
+			sp->layout[i].playground.x = atof(value);
 		}
 		sprintf(vname, "Playground %d Y", i);
 		value = al_get_config_value(tp->config, stage_name, vname);
 		if(value)
 		{
 			sp->layout[i].playground.y = atof(value);
+		}
+	}
+	
+	/* load the message positions */
+	for(i = 0; i < tp->max_players; i++)
+	{
+		sprintf(vname, "Message %d X", i);
+		value = al_get_config_value(tp->config, stage_name, vname);
+		if(value)
+		{
+			sp->layout[i].message.x = atof(value);
+		}
+		sprintf(vname, "Message %d Y", i);
+		value = al_get_config_value(tp->config, stage_name, vname);
+		if(value)
+		{
+			sp->layout[i].message.y = atof(value);
+		}
+		sprintf(vname, "Message %d Width", i);
+		value = al_get_config_value(tp->config, stage_name, vname);
+		if(value)
+		{
+			sp->message_width = atof(value);
+		}
+		sprintf(vname, "Message %d Height", i);
+		value = al_get_config_value(tp->config, stage_name, vname);
+		if(value)
+		{
+			sp->message_height = atof(value);
 		}
 	}
 	
@@ -261,8 +302,6 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	} */
 	sp->board_width = 6;
 	sp->board_height = 14;
-	sp->block_width = sp->crystal_animation[0]->frame[0]->width;
-	sp->block_height = sp->crystal_animation[0]->frame[0]->height;
 	
 /*	value = al_get_config_value(tp->config, stage_name, "Stack Height");
 	if(value)
