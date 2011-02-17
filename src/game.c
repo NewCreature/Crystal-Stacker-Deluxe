@@ -36,7 +36,13 @@ bool csd_game_setup(void)
 		return false;
 	}
 	csd_game.theme = csd_theme;
-	csd_game_init_level(0, 0);
+	
+	/* load stages prior to starting stage */
+	for(i = 0; i < csd_option[CSD_OPTION_START_LEVEL] - 1; i++)
+	{
+		csd_load_stage(csd_game.theme, &csd_game.stage, i);
+	}
+	csd_game_init_level(csd_option[CSD_OPTION_START_LEVEL], 0);
 	for(i = 0; i < csd_game.stage.board_height; i++)
 	{
 		for(j = 0; j < csd_game.stage.board_width; j++)

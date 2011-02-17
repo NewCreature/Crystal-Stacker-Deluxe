@@ -10,8 +10,9 @@
 
 #define CSD_MAX_BITMAPS   32
 
-#define CSD_MAX_OPTIONS    64
-#define CSD_OPTION_UPLOAD   0
+#define CSD_MAX_OPTIONS       64
+#define CSD_OPTION_UPLOAD      0
+#define CSD_OPTION_START_LEVEL 1
 
 extern int csd_option[CSD_MAX_OPTIONS];
 extern int csd_high_score;
