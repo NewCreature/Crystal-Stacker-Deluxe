@@ -129,6 +129,7 @@ void csd_title_logic(void)
 
 void csd_title_render(void)
 {
-	al_clear_to_color(al_map_rgba_f(0.1, 0.1, 0.1, 1.0));
+	al_draw_bitmap(csd_bitmap[CSD_BITMAP_TITLE_BG], 0, 0, 0);
+	al_draw_bitmap(csd_bitmap[CSD_BITMAP_TITLE_LOGO], 320 - al_get_bitmap_width(csd_bitmap[CSD_BITMAP_TITLE_LOGO]) / 2, 32, 0);
 	t3f_render_gui(csd_menu[csd_current_menu]);
 }

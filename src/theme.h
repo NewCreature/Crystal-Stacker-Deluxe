@@ -30,6 +30,8 @@
 #define CSD_THEME_SAMPLE_LEVEL         8
 #define CSD_THEME_SAMPLE_PAUSE         9
 #define CSD_THEME_SAMPLE_ATTACK       10
+#define CSD_THEME_SAMPLE_HIGH_SCORE   11
+#define CSD_THEME_SAMPLE_LOSE         12
 
 typedef struct
 {

@@ -137,6 +137,21 @@ void csd_setup_controllers(void)
 	}
 }
 
+bool csd_load_images(void)
+{
+	csd_bitmap[CSD_BITMAP_TITLE_BG] = al_load_bitmap("graphics/title_bg.png");
+	if(!csd_bitmap[CSD_BITMAP_TITLE_BG])
+	{
+		return false;
+	}
+	csd_bitmap[CSD_BITMAP_TITLE_LOGO] = al_load_bitmap("graphics/title_logo.png");
+	if(!csd_bitmap[CSD_BITMAP_TITLE_LOGO])
+	{
+		return false;
+	}
+	return true;
+}
+
 bool csd_initialize(int argc, char * argv[])
 {
 	if(!t3f_initialize("Crystal Stacker Deluxe", 640, 480, 60.0, csd_logic, csd_render, T3F_DEFAULT | T3F_USE_MOUSE))
@@ -144,6 +159,10 @@ bool csd_initialize(int argc, char * argv[])
 		return false;
 	}
 	al_init_ttf_addon();
+	if(!csd_load_images())
+	{
+		return false;
+	}
 	csd_read_config();
 	csd_setup_controllers();
 	if(!csd_title_setup())
