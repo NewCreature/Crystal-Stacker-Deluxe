@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -O2 -fomit-frame-pointer -ffast-math -funroll-loops -Wall
 LIBS = -lallegro_image -lallegro_font -lallegro_ttf -lallegro_primitives -lallegro_audio -lallegro_acodec -lallegro -lcurl -lmxml
 
-T3F_OFILES = t3f/t3f.o t3f/music.o t3f/animation.o t3f/gui.o
+T3F_OFILES = t3f/t3f.o t3f/music.o t3f/animation.o t3f/gui.o t3f/controller.o
 CSD_OFILES = t3net/t3net.o main.o title.o leaderboard.o theme.o legacy_theme.o core.o player.o game.o 3dsprite.o message.o
 CSD_EXENAME = ../bin/csd
 

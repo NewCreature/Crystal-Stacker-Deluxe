@@ -1,4 +1,5 @@
 #include "t3f/t3f.h"
+#include "t3f/controller.h"
 #include "t3net/t3net.h"
 #include <allegro5/allegro_ttf.h>
 #include "main.h"
@@ -15,6 +16,8 @@ int csd_high_score = 1000;
 T3NET_LEADERBOARD * csd_leaderboard = NULL;
 int csd_leaderboard_position = -1;
 char csd_upload_name[256] = {0};
+T3F_CONTROLLER * csd_controller[CSD_MAX_PLAYERS] = {NULL};
+int csd_controller_repeat[CSD_MAX_PLAYERS][5] = {{0}};
 
 int csd_tick = 0;
 int done = 0;
@@ -100,6 +103,40 @@ void csd_read_config(void)
 	}
 }
 
+void csd_set_default_controls(int controller)
+{
+	int default_key[CSD_MAX_PLAYERS][5] = 
+	{
+		{ ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT, ALLEGRO_KEY_DOWN, ALLEGRO_KEY_UP, ALLEGRO_KEY_PAD_0 },
+		{ ALLEGRO_KEY_A,    ALLEGRO_KEY_D,     ALLEGRO_KEY_S,    ALLEGRO_KEY_W,  ALLEGRO_KEY_E },
+		{ ALLEGRO_KEY_F,    ALLEGRO_KEY_H,     ALLEGRO_KEY_G,    ALLEGRO_KEY_T,  ALLEGRO_KEY_Y },
+		{ ALLEGRO_KEY_J,    ALLEGRO_KEY_L,     ALLEGRO_KEY_K,    ALLEGRO_KEY_I,  ALLEGRO_KEY_O }
+	};
+	int i;
+	
+	for(i = 0; i < 5; i++)
+	{
+		csd_controller[controller]->binding[i].type = T3F_CONTROLLER_BINDING_KEY;
+		csd_controller[controller]->binding[i].button = default_key[controller][i];
+	}
+}
+
+void csd_setup_controllers(void)
+{
+	char section_name[256] = {0};
+	int i;
+	
+	for(i = 0; i < CSD_MAX_PLAYERS; i++)
+	{
+		csd_controller[i] = t3f_create_controller(5);
+		sprintf(section_name, "Controller %d", i);
+		if(!t3f_read_controller_config(t3f_config, section_name, csd_controller[i]))
+		{
+			csd_set_default_controls(i);
+		}
+	}
+}
+
 bool csd_initialize(int argc, char * argv[])
 {
 	if(!t3f_initialize("Crystal Stacker Deluxe", 640, 480, 60.0, csd_logic, csd_render, T3F_DEFAULT | T3F_USE_MOUSE))
@@ -108,6 +145,7 @@ bool csd_initialize(int argc, char * argv[])
 	}
 	al_init_ttf_addon();
 	csd_read_config();
+	csd_setup_controllers();
 	if(!csd_title_setup())
 	{
 		return false;

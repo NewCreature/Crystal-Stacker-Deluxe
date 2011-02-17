@@ -63,6 +63,7 @@ bool csd_game_setup(void)
 		csd_game.player[i].block.id = i;
 		csd_game_add_player_message(i, CSD_MESSAGE_SCROLL, "Get your match on!");
 	}
+	memset(csd_controller_repeat, 0, sizeof(int) * CSD_MAX_PLAYERS * 5);
 	csd_game.state = CSD_GAME_STATE_PLAY;
 	csd_set_state(CSD_STATE_PLAYING);
 	al_start_timer(t3f_timer);
@@ -142,40 +143,75 @@ bool csd_game_add_player_message(int player, int type, const char * message)
 void csd_game_player_logic(int player)
 {
 	int i, temp;
+	bool move;
 	
+	t3f_read_controller(csd_controller[player]);
+	t3f_update_controller(csd_controller[player]);
 	switch(csd_game.player[player].board.state)
 	{
 		case CSD_PLAYER_BOARD_STATE_NORMAL:
 		{
-			if(t3f_key[ALLEGRO_KEY_LEFT])
+			if(csd_controller[player]->state[CSD_CONTROLLER_LEFT].held)
 			{
-				if(csd_game.player[player].block.bx > 0 && csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx - 1] == 0)
+				move = false;
+				csd_controller_repeat[player][CSD_CONTROLLER_LEFT]++;
+				if(csd_controller_repeat[player][CSD_CONTROLLER_LEFT] == 1)
 				{
-					csd_game.player[player].block.bx--;
-					csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
-					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
+					move = true;
 				}
-				else
+				else if(csd_controller_repeat[player][CSD_CONTROLLER_LEFT] >= CSD_REPEAT_DELAY && (csd_controller_repeat[player][CSD_CONTROLLER_LEFT] - CSD_REPEAT_DELAY) % CSD_REPEAT_SPEED == 0)
 				{
-					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
+					move = true;
 				}
-				t3f_key[ALLEGRO_KEY_LEFT] = 0;
+				if(move)
+				{
+					if(csd_game.player[player].block.bx > 0 && csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx - 1] == 0)
+					{
+						csd_game.player[player].block.bx--;
+						csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
+						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
+					}
+					else
+					{
+						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
+					}
+				}
 			}
-			if(t3f_key[ALLEGRO_KEY_RIGHT])
+			else
 			{
-				if(csd_game.player[player].block.bx < csd_game.stage.board_width - 1 && csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx + 1] == 0)
-				{
-					csd_game.player[player].block.bx++;
-					csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
-					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
-				}
-				else
-				{
-					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
-				}
-				t3f_key[ALLEGRO_KEY_RIGHT] = 0;
+				csd_controller_repeat[player][CSD_CONTROLLER_LEFT] = 0;
 			}
-			if(t3f_key[ALLEGRO_KEY_DOWN] && !down_done)
+			if(csd_controller[player]->state[CSD_CONTROLLER_RIGHT].held)
+			{
+				move = false;
+				csd_controller_repeat[player][CSD_CONTROLLER_RIGHT]++;
+				if(csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] == 1)
+				{
+					move = true;
+				}
+				else if(csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] >= CSD_REPEAT_DELAY && (csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] - CSD_REPEAT_DELAY) % CSD_REPEAT_SPEED == 0)
+				{
+					move = true;
+				}
+				if(move)
+				{
+					if(csd_game.player[player].block.bx < csd_game.stage.board_width - 1 && csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx + 1] == 0)
+					{
+						csd_game.player[player].block.bx++;
+						csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
+						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
+					}
+					else
+					{
+						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
+					}
+				}
+			}
+			else
+			{
+				csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] = 0;
+			}
+			if(csd_controller[player]->state[CSD_CONTROLLER_DROP].held && !down_done)
 			{
 				if(csd_game.stage.fall_type == 1)
 				{
@@ -190,12 +226,12 @@ void csd_game_player_logic(int player)
 			else
 			{
 				csd_game.player[player].block.y += csd_game.player[player].block.vy;
-				if(!t3f_key[ALLEGRO_KEY_DOWN])
+				if(!csd_controller[player]->state[CSD_CONTROLLER_DROP].held)
 				{
 					down_done = 0;
 				}
 			}
-			if(t3f_key[ALLEGRO_KEY_UP])
+			if(csd_controller[player]->state[CSD_CONTROLLER_RUP].pressed)
 			{
 				/* remember the top crystal */
 				temp = csd_game.player[player].block.data[0];
@@ -209,7 +245,21 @@ void csd_game_player_logic(int player)
 				/* place remembered crystal at the bottom */
 				csd_game.player[player].block.data[csd_game.stage.stack_height - 1] = temp;
 				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_ROTATE_UP]);
-				t3f_key[ALLEGRO_KEY_UP] = 0;
+			}
+			if(csd_controller[player]->state[CSD_CONTROLLER_RDOWN].pressed)
+			{
+				/* remember the top crystal */
+				temp = csd_game.player[player].block.data[2];
+		
+				/* move the others up */
+				for(i = csd_game.stage.stack_height - 1; i >= 0; i--)
+				{
+	    			csd_game.player[player].block.data[i] = csd_game.player[player].block.data[i - 1];
+				}
+		
+				/* place remembered crystal at the bottom */
+				csd_game.player[player].block.data[0] = temp;
+				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_ROTATE_DOWN]);
 			}
 			csd_game.player[player].block.bx = csd_game.player[player].block.x / csd_game.stage.crystal_animation[0]->frame[0]->width;
 			csd_game.player[player].block.by = csd_game.player[player].block.y / csd_game.stage.crystal_animation[0]->frame[0]->height;
