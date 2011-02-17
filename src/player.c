@@ -147,4 +147,5 @@ void csd_player_init(CSD_PLAYER * pp, int level)
 	pp->score = 0;
 	pp->level = level;
 	pp->active = 1;
+	pp->lost = false;
 }

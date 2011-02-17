@@ -63,6 +63,7 @@ typedef struct
 	int profile;
 	int active;
 	int high_combo;
+	bool lost;
 	
 	/* internally used */
 	int combo, removed;

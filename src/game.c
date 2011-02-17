@@ -9,6 +9,8 @@
 int level_chart[20] = {670, 600, 540, 480, 420, 370, 320, 280, 240, 200, 170, 140, 120, 100, 80, 70, 60, 55, 50, 45};
 float ratio;
 int down_done = 0;
+bool high_broken = false;
+int fill_height;
 
 CSD_THEME * csd_theme = NULL;
 CSD_GAME csd_game;
@@ -64,6 +66,7 @@ bool csd_game_setup(void)
 		csd_game_add_player_message(i, CSD_MESSAGE_SCROLL, "Get your match on!");
 	}
 	memset(csd_controller_repeat, 0, sizeof(int) * CSD_MAX_PLAYERS * 5);
+	high_broken = false;
 	csd_game.state = CSD_GAME_STATE_PLAY;
 	csd_set_state(CSD_STATE_PLAYING);
 	al_start_timer(t3f_timer);
@@ -145,149 +148,144 @@ void csd_game_player_logic(int player)
 	int i, temp;
 	bool move;
 	
-	t3f_read_controller(csd_controller[player]);
-	t3f_update_controller(csd_controller[player]);
-	switch(csd_game.player[player].board.state)
+	if(!csd_game.player[player].lost)
 	{
-		case CSD_PLAYER_BOARD_STATE_NORMAL:
+		t3f_read_controller(csd_controller[player]);
+		t3f_update_controller(csd_controller[player]);
+		switch(csd_game.player[player].board.state)
 		{
-			if(csd_controller[player]->state[CSD_CONTROLLER_LEFT].held)
+			case CSD_PLAYER_BOARD_STATE_NORMAL:
 			{
-				move = false;
-				csd_controller_repeat[player][CSD_CONTROLLER_LEFT]++;
-				if(csd_controller_repeat[player][CSD_CONTROLLER_LEFT] == 1)
+				if(csd_controller[player]->state[CSD_CONTROLLER_LEFT].held)
 				{
-					move = true;
-				}
-				else if(csd_controller_repeat[player][CSD_CONTROLLER_LEFT] >= CSD_REPEAT_DELAY && (csd_controller_repeat[player][CSD_CONTROLLER_LEFT] - CSD_REPEAT_DELAY) % CSD_REPEAT_SPEED == 0)
-				{
-					move = true;
-				}
-				if(move)
-				{
-					if(csd_game.player[player].block.bx > 0 && csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx - 1] == 0)
+					move = false;
+					csd_controller_repeat[player][CSD_CONTROLLER_LEFT]++;
+					if(csd_controller_repeat[player][CSD_CONTROLLER_LEFT] == 1)
 					{
-						csd_game.player[player].block.bx--;
-						csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
-						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
+						move = true;
 					}
-					else
+					else if(csd_controller_repeat[player][CSD_CONTROLLER_LEFT] >= CSD_REPEAT_DELAY && (csd_controller_repeat[player][CSD_CONTROLLER_LEFT] - CSD_REPEAT_DELAY) % CSD_REPEAT_SPEED == 0)
 					{
-						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
+						move = true;
 					}
-				}
-			}
-			else
-			{
-				csd_controller_repeat[player][CSD_CONTROLLER_LEFT] = 0;
-			}
-			if(csd_controller[player]->state[CSD_CONTROLLER_RIGHT].held)
-			{
-				move = false;
-				csd_controller_repeat[player][CSD_CONTROLLER_RIGHT]++;
-				if(csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] == 1)
-				{
-					move = true;
-				}
-				else if(csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] >= CSD_REPEAT_DELAY && (csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] - CSD_REPEAT_DELAY) % CSD_REPEAT_SPEED == 0)
-				{
-					move = true;
-				}
-				if(move)
-				{
-					if(csd_game.player[player].block.bx < csd_game.stage.board_width - 1 && csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx + 1] == 0)
+					if(move)
 					{
-						csd_game.player[player].block.bx++;
-						csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
-						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
+						if(csd_game.player[player].block.bx > 0 && csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx - 1] == 0)
+						{
+							csd_game.player[player].block.bx--;
+							csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
+							csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
+						}
+						else
+						{
+							csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
+						}
 					}
-					else
-					{
-						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
-					}
-				}
-			}
-			else
-			{
-				csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] = 0;
-			}
-			if(csd_controller[player]->state[CSD_CONTROLLER_DROP].held && !down_done)
-			{
-				if(csd_game.stage.fall_type == 1)
-				{
-					csd_game.player[player].block.y += (float)csd_game.stage.block_height - fmod(csd_game.player[player].block.y, csd_game.stage.block_height);
 				}
 				else
 				{
-					csd_game.player[player].block.y += (float)csd_game.stage.block_height;
+					csd_controller_repeat[player][CSD_CONTROLLER_LEFT] = 0;
 				}
-				csd_game.player[player].block.by = csd_game.player[player].block.y / csd_game.stage.block_height;
-			}
-			else
-			{
-				csd_game.player[player].block.y += csd_game.player[player].block.vy;
-				if(!csd_controller[player]->state[CSD_CONTROLLER_DROP].held)
+				if(csd_controller[player]->state[CSD_CONTROLLER_RIGHT].held)
 				{
-					down_done = 0;
+					move = false;
+					csd_controller_repeat[player][CSD_CONTROLLER_RIGHT]++;
+					if(csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] == 1)
+					{
+						move = true;
+					}
+					else if(csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] >= CSD_REPEAT_DELAY && (csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] - CSD_REPEAT_DELAY) % CSD_REPEAT_SPEED == 0)
+					{
+						move = true;
+					}
+					if(move)
+					{
+						if(csd_game.player[player].block.bx < csd_game.stage.board_width - 1 && csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx + 1] == 0)
+						{
+							csd_game.player[player].block.bx++;
+							csd_game.player[player].block.x = csd_game.player[player].block.bx * csd_game.stage.crystal_animation[0]->frame[0]->width;
+							csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE]);
+						}
+						else
+						{
+							csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MOVE_FAIL]);
+						}
+					}
 				}
-			}
-			if(csd_controller[player]->state[CSD_CONTROLLER_RUP].pressed)
-			{
-				/* remember the top crystal */
-				temp = csd_game.player[player].block.data[0];
-		
-				/* move the others up */
-				for(i = 0; i < csd_game.stage.stack_height; i++)
+				else
 				{
-	    			csd_game.player[player].block.data[i] = csd_game.player[player].block.data[i + 1];
+					csd_controller_repeat[player][CSD_CONTROLLER_RIGHT] = 0;
 				}
-		
-				/* place remembered crystal at the bottom */
-				csd_game.player[player].block.data[csd_game.stage.stack_height - 1] = temp;
-				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_ROTATE_UP]);
-			}
-			if(csd_controller[player]->state[CSD_CONTROLLER_RDOWN].pressed)
-			{
-				/* remember the top crystal */
-				temp = csd_game.player[player].block.data[2];
-		
-				/* move the others up */
-				for(i = csd_game.stage.stack_height - 1; i >= 0; i--)
+				if(csd_controller[player]->state[CSD_CONTROLLER_DROP].held && !down_done)
 				{
-	    			csd_game.player[player].block.data[i] = csd_game.player[player].block.data[i - 1];
+					if(csd_game.stage.fall_type == 1)
+					{
+						csd_game.player[player].block.y += (float)csd_game.stage.block_height - fmod(csd_game.player[player].block.y, csd_game.stage.block_height);
+					}
+					else
+					{
+						csd_game.player[player].block.y += (float)csd_game.stage.block_height;
+					}
+					csd_game.player[player].block.by = csd_game.player[player].block.y / csd_game.stage.block_height;
 				}
-		
-				/* place remembered crystal at the bottom */
-				csd_game.player[player].block.data[0] = temp;
-				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_ROTATE_DOWN]);
-			}
-			csd_game.player[player].block.bx = csd_game.player[player].block.x / csd_game.stage.crystal_animation[0]->frame[0]->width;
-			csd_game.player[player].block.by = csd_game.player[player].block.y / csd_game.stage.crystal_animation[0]->frame[0]->height;
+				else
+				{
+					csd_game.player[player].block.y += csd_game.player[player].block.vy;
+					if(!csd_controller[player]->state[CSD_CONTROLLER_DROP].held)
+					{
+						down_done = 0;
+					}
+				}
+				if(csd_controller[player]->state[CSD_CONTROLLER_RUP].pressed)
+				{
+					/* remember the top crystal */
+					temp = csd_game.player[player].block.data[0];
 			
-			/* adjust for negative number */
-			if(csd_game.player[player].block.y < 0)
-			{
-				csd_game.player[player].block.by--;
-			}
-			if(csd_game.player[player].block.by >= csd_game.stage.board_height || csd_game.player[player].board.data[csd_game.player[player].block.by + csd_game.stage.stack_height][csd_game.player[player].block.bx] != 0)
-			{
-				down_done = 1;
-				if(csd_game.player[player].block.by < csd_game.stage.stack_height)
-				{
-					csd_game.state = CSD_GAME_STATE_OVER;
-					return;
-				}
-				if(csd_game.player[player].block.data[0] != CSD_BLOCK_TYPE_BOMB)
-				{
+					/* move the others up */
 					for(i = 0; i < csd_game.stage.stack_height; i++)
 					{
-						csd_game.player[player].board.data[csd_game.player[player].block.by + i][csd_game.player[player].block.bx] = csd_game.player[player].block.data[i];
+						csd_game.player[player].block.data[i] = csd_game.player[player].block.data[i + 1];
 					}
+			
+					/* place remembered crystal at the bottom */
+					csd_game.player[player].block.data[csd_game.stage.stack_height - 1] = temp;
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_ROTATE_UP]);
 				}
-				else
+				if(csd_controller[player]->state[CSD_CONTROLLER_RDOWN].pressed)
 				{
-					/* bomb hit bottom so no blocks are bombed */
-					if(csd_game.player[player].block.by >= csd_game.stage.board_height)
+					/* remember the top crystal */
+					temp = csd_game.player[player].block.data[2];
+			
+					/* move the others up */
+					for(i = csd_game.stage.stack_height - 1; i >= 0; i--)
+					{
+						csd_game.player[player].block.data[i] = csd_game.player[player].block.data[i - 1];
+					}
+			
+					/* place remembered crystal at the bottom */
+					csd_game.player[player].block.data[0] = temp;
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_ROTATE_DOWN]);
+				}
+				csd_game.player[player].block.bx = csd_game.player[player].block.x / csd_game.stage.crystal_animation[0]->frame[0]->width;
+				csd_game.player[player].block.by = csd_game.player[player].block.y / csd_game.stage.crystal_animation[0]->frame[0]->height;
+				
+				/* adjust for negative number */
+				if(csd_game.player[player].block.y < 0)
+				{
+					csd_game.player[player].block.by--;
+				}
+				if(csd_game.player[player].block.by >= csd_game.stage.board_height || csd_game.player[player].board.data[csd_game.player[player].block.by + csd_game.stage.stack_height][csd_game.player[player].block.bx] != 0)
+				{
+					down_done = 1;
+					if(csd_game.player[player].block.by < csd_game.stage.stack_height)
+					{
+						csd_game.player[player].lost = true;
+						fill_height = 0;
+						csd_game.state = CSD_GAME_STATE_OVER;
+						csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "You lost!");
+						return;
+					}
+					if(csd_game.player[player].block.data[0] != CSD_BLOCK_TYPE_BOMB)
 					{
 						for(i = 0; i < csd_game.stage.stack_height; i++)
 						{
@@ -296,63 +294,79 @@ void csd_game_player_logic(int player)
 					}
 					else
 					{
-						for(i = 0; i < csd_game.stage.stack_height; i++)
+						/* bomb hit bottom so no blocks are bombed */
+						if(csd_game.player[player].block.by >= csd_game.stage.board_height)
 						{
-							csd_game.player[player].board.data[csd_game.player[player].block.by + i][csd_game.player[player].block.bx] = csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx];
+							for(i = 0; i < csd_game.stage.stack_height; i++)
+							{
+								csd_game.player[player].board.data[csd_game.player[player].block.by + i][csd_game.player[player].block.bx] = csd_game.player[player].block.data[i];
+							}
 						}
-						core_mark_runs_bomb(&csd_game.player[player].board, csd_game.player[player].block.bx, csd_game.player[player].block.by + 3);
+						else
+						{
+							for(i = 0; i < csd_game.stage.stack_height; i++)
+							{
+								csd_game.player[player].board.data[csd_game.player[player].block.by + i][csd_game.player[player].block.bx] = csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx];
+							}
+							core_mark_runs_bomb(&csd_game.player[player].board, csd_game.player[player].block.bx, csd_game.player[player].block.by + 3);
+						}
 					}
-				}
-				csd_game.player[player].block.x = (csd_game.stage.board_width / 2) * csd_game.stage.crystal_animation[0]->frame[0]->width;
-				csd_game.player[player].block.y = 0.0;
-				csd_player_block_copy(&csd_game.player[player].block, &csd_game.player[player].block_preview);
-				csd_player_block_generate(&csd_game.player[player].block_preview);
-				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LAND]);
-				if(core_find_all_runs(&csd_game.player[player].board) > 0)
-				{
-					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES]);
-					csd_game.player[player].board.state = CSD_PLAYER_BOARD_STATE_RUNS;
-					csd_game.player[player].board.state_counter = 0;
-					csd_game.player[player].combo = 0;
-					csd_game.player[player].removed = 0;
-				}
-			}
-			break;
-		}
-		case CSD_PLAYER_BOARD_STATE_RUNS:
-		{
-			csd_game.player[player].board.state_counter++;
-			if(csd_game.player[player].board.state_counter >= 18)
-			{
-				temp = core_delete_runs(&csd_game.player[player].board);
-				csd_game.player[player].destroyed += temp;
-				csd_game.player[player].removed += temp;
-				csd_game.player[player].combo++;
-				csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_DELETE]);
-	    		if(csd_game.player[player].destroyed >= (csd_game.player[player].level + 1) * 45)
-				{
-					if(csd_game.player[player].level < 20)
+					csd_game.player[player].block.x = (csd_game.stage.board_width / 2) * csd_game.stage.crystal_animation[0]->frame[0]->width;
+					csd_game.player[player].block.y = 0.0;
+					csd_player_block_copy(&csd_game.player[player].block, &csd_game.player[player].block_preview);
+					csd_player_block_generate(&csd_game.player[player].block_preview);
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LAND]);
+					if(core_find_all_runs(&csd_game.player[player].board) > 0)
 					{
-	    				csd_game_init_level(csd_game.player[player].level + 1, 0);
-						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LEVEL]);
+						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES]);
+						csd_game.player[player].board.state = CSD_PLAYER_BOARD_STATE_RUNS;
+						csd_game.player[player].board.state_counter = 0;
+						csd_game.player[player].combo = 0;
+						csd_game.player[player].removed = 0;
 					}
 				}
-				if(core_find_all_runs(&csd_game.player[player].board) > 0)
-				{
-					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES]);
-					csd_game.player[player].board.state_counter = 0;
-				}
-				else
-				{
-		            csd_game.player[player].score += csd_game.player[player].combo * (((csd_game.player[player].removed * 5) * ((csd_game.player[player].level * 100) / 4 + 100)) / 100);
-		            if(csd_game.player[player].score > csd_high_score)
-		            {
-						csd_high_score = csd_game.player[player].score;
-					}
-					csd_game.player[player].board.state = CSD_PLAYER_BOARD_STATE_NORMAL;
-				}
+				break;
 			}
-			break;
+			case CSD_PLAYER_BOARD_STATE_RUNS:
+			{
+				csd_game.player[player].board.state_counter++;
+				if(csd_game.player[player].board.state_counter >= 18)
+				{
+					temp = core_delete_runs(&csd_game.player[player].board);
+					csd_game.player[player].destroyed += temp;
+					csd_game.player[player].removed += temp;
+					csd_game.player[player].combo++;
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_DELETE]);
+					if(csd_game.player[player].destroyed >= (csd_game.player[player].level + 1) * 45)
+					{
+						if(csd_game.player[player].level < 20)
+						{
+							csd_game_init_level(csd_game.player[player].level + 1, 0);
+							csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LEVEL]);
+						}
+					}
+					if(core_find_all_runs(&csd_game.player[player].board) > 0)
+					{
+						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES]);
+						csd_game.player[player].board.state_counter = 0;
+					}
+					else
+					{
+						csd_game.player[player].score += csd_game.player[player].combo * (((csd_game.player[player].removed * 5) * ((csd_game.player[player].level * 100) / 4 + 100)) / 100);
+						if(csd_game.player[player].score > csd_high_score)
+						{
+							if(!high_broken)
+							{
+								csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "You beat the high score!");
+								high_broken = true;
+							}
+							csd_high_score = csd_game.player[player].score;
+						}
+						csd_game.player[player].board.state = CSD_PLAYER_BOARD_STATE_NORMAL;
+					}
+				}
+				break;
+			}
 		}
 	}
 	csd_process_message_queue(&csd_game.player[player].messages, csd_game.stage.font);
@@ -374,7 +388,7 @@ void csd_game_projectile_logic(void)
 
 void csd_game_logic(void)
 {
-	int i;
+	int i, j;
 	
 	switch(csd_game.state)
 	{
@@ -404,7 +418,31 @@ void csd_game_logic(void)
 		}
 		case CSD_GAME_STATE_OVER:
 		{
-			csd_game_exit();
+			for(i = 0; i < csd_game.players; i++)
+			{
+				csd_game_player_logic(i);
+			}
+			if(fill_height <= csd_game.stage.board_height)
+			{
+				if(csd_game.tick % 3 == 0)
+				{
+					for(i = 0; i < csd_game.players; i++)
+					{
+						if(csd_game.player[i].lost)
+						{
+							for(j = 0; j < csd_game.stage.board_width; j++)
+							{
+								csd_game.player[i].board.data[csd_game.stage.board_height + 3 - 1 - fill_height][j] = CSD_BLOCK_TYPE_SOLID;
+							}
+						}
+					}
+					fill_height++;
+				}
+			}
+			else if(csd_game.player[0].messages.messages == 0)
+			{
+				csd_game_exit();
+			}
 			break;
 		}
 	}
@@ -445,26 +483,32 @@ void csd_game_player_render(int player)
 			}
 		}
 	}
-	for(i = 0; i < csd_game.stage.stack_height; i++)
+	if(!csd_game.player[player].lost)
 	{
-		if(csd_game.stage.fall_type == 0)
+		for(i = 0; i < csd_game.stage.stack_height; i++)
 		{
-			sy = csd_game.player[player].block.y;
+			if(csd_game.stage.fall_type == 0)
+			{
+				sy = csd_game.player[player].block.y;
+			}
+			else
+			{
+				sy = ((int)(csd_game.player[player].block.y + (csd_game.stage.block_height - 1)) / csd_game.stage.block_height) * csd_game.stage.block_height;
+			}
+			t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].playground.x + csd_game.player[player].block.x, (i - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y + sy, 0.0, 0);
 		}
-		else
-		{
-			sy = ((int)(csd_game.player[player].block.y + (csd_game.stage.block_height - 1)) / csd_game.stage.block_height) * csd_game.stage.block_height;
-		}
-		t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].playground.x + csd_game.player[player].block.x, (i - csd_game.stage.stack_height) * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].playground.y + sy, 0.0, 0);
 	}
 	t3f_set_clipping_rectangle(csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_width, csd_game.stage.message_height);
 	csd_render_message_queue(&csd_game.player[player].messages, csd_game.stage.font, csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_scroll_type == 0);
 	al_set_clipping_rectangle(cx, cy, cw, ch);
 	
 	/* draw preview block */
-	for(i = 0; i < csd_game.stage.stack_height; i++)
+	if(!csd_game.player[player].lost)
 	{
-		t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block_preview.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].preview.x, i * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].preview.y, 0.0, 0);
+		for(i = 0; i < csd_game.stage.stack_height; i++)
+		{
+			t3f_draw_animation(csd_game.stage.crystal_animation[(int)csd_game.player[player].block_preview.data[i]], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), csd_game.tick, csd_game.stage.layout[player].preview.x, i * csd_game.stage.crystal_animation[0]->frame[0]->height + csd_game.stage.layout[player].preview.y, 0.0, 0);
+		}
 	}
 	
 	/* draw game info */

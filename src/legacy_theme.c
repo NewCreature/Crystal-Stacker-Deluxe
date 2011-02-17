@@ -336,7 +336,7 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     	}
     }
 
-	/* construct bomb and wild crystals */
+	/* construct bomb and wild crystals and solids */
 	sp->crystal_animation[CSD_BLOCK_TYPE_WILD] = t3f_create_animation();
 	sp->fcrystal_animation[CSD_BLOCK_TYPE_WILD] = t3f_create_animation();
 	sp->crystal_animation[CSD_BLOCK_TYPE_BOMB] = t3f_create_animation();
@@ -352,6 +352,9 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 		t3f_animation_add_bitmap(sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB], al_clone_bitmap(sp->fcrystal_animation[i]->bitmap[0]));
 		t3f_animation_add_frame(sp->fcrystal_animation[CSD_BLOCK_TYPE_BOMB], i - 1, 0, 0, 0, sp->block_width, sp->block_height, 0, 2);
 	}
+	sp->crystal_animation[CSD_BLOCK_TYPE_SOLID] = t3f_create_animation();
+	t3f_animation_add_bitmap(sp->crystal_animation[CSD_BLOCK_TYPE_SOLID], al_clone_bitmap(sp->crystal_animation[6]->bitmap[0]));
+	t3f_animation_add_frame(sp->crystal_animation[CSD_BLOCK_TYPE_SOLID], 0, 0, 0, 0, sp->block_width, sp->block_height, 0, 1);
 	
     /* tile stuff (old) */
     if(header[3] == 21)

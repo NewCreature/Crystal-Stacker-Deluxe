@@ -80,7 +80,7 @@ void csd_render_message_queue(CSD_MESSAGE_QUEUE * qp, ALLEGRO_FONT * fp, float x
 				else
 				{
 					w = al_get_text_width(fp, "A");
-					al_draw_text(fp, t3f_color_white, ((int)(x + (float)qp->message[0].pos) / w) * w, y, 0, qp->message[0].text);
+					al_draw_text(fp, t3f_color_white, x + (float)(qp->message[0].pos / w) * w, y, 0, qp->message[0].text);
 				}
 				break;
 			}
