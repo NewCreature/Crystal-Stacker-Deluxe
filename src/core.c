@@ -105,7 +105,7 @@ int core_find_runs(CSD_PLAYER_BOARD * bp, int boardx, int boardy, int dx, int dy
 }
 
 /* marks bombed blocks */
-void core_mark_runs_bomb(CSD_PLAYER_BOARD * bp, int x, int y)
+int core_mark_runs_bomb(CSD_PLAYER_BOARD * bp, int x, int y)
 {
     int bombed;
     int i, j;
@@ -116,8 +116,6 @@ void core_mark_runs_bomb(CSD_PLAYER_BOARD * bp, int x, int y)
     /* do this when bombing a wild! */
     if(bombed == CSD_BLOCK_TYPE_WILD)
     {
-		csd_game_add_player_message(bp->id, CSD_MESSAGE_SCROLL, "Mass Destruction!");
-		
         /* scan board for blocks to bomb */
         for(i = 0; i < bp->height; i++)
         {
@@ -130,19 +128,18 @@ void core_mark_runs_bomb(CSD_PLAYER_BOARD * bp, int x, int y)
             	}
         	}
         }
+        return 2;
     }
 
     /* do this when bombing a solid */
     else if(bombed == CSD_BLOCK_TYPE_SOLID)
     {
-		csd_game_add_player_message(bp->id, CSD_MESSAGE_SCROLL, "Can't destroy those!");
+		return 0;
     }
 
     /* otherwise, do this */
     else
     {
-		csd_game_add_player_message(bp->id, CSD_MESSAGE_SCROLL, "Destruction!");
-		
         /* scan board for blocks to bomb */
         for(i = 0; i < bp->height; i++)
         {
@@ -156,6 +153,7 @@ void core_mark_runs_bomb(CSD_PLAYER_BOARD * bp, int x, int y)
         	}
         }
     }
+    return 1;
 }
 
 void core_board_logic(CSD_PLAYER_BOARD * bp)

@@ -78,6 +78,7 @@ typedef struct
 	/* block settings */
 	int block_width;
 	int block_height;
+	bool block_scale;
 	int stack_height;
 	int block_types;
 	int flash_type;

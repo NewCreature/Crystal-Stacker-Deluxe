@@ -75,6 +75,7 @@ typedef struct
 void csd_player_clear_board(CSD_PLAYER * pp);
 void csd_player_block_generate(CSD_PLAYER_BLOCK * bp);
 void csd_player_block_copy(CSD_PLAYER_BLOCK * dest, CSD_PLAYER_BLOCK * source);
+bool csd_player_board_full(CSD_PLAYER * pp);
 void csd_player_get_next_block(CSD_PLAYER * pp);
 void csd_player_init(CSD_PLAYER * pp, int level);
 

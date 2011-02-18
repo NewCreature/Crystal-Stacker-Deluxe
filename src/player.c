@@ -137,6 +137,20 @@ void csd_player_block_copy(CSD_PLAYER_BLOCK * dest, CSD_PLAYER_BLOCK * source)
 	dest->type = source->type;
 }
 
+bool csd_player_board_full(CSD_PLAYER * pp)
+{
+	int i;
+	
+	for(i = 0; i < pp->board.width; i++)
+	{
+		if(pp->board.data[2][i])
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void csd_player_init(CSD_PLAYER * pp, int level)
 {
 	csd_player_clear_board(pp);

@@ -27,7 +27,7 @@ static T3F_ANIMATION * csd_load_animation(ALLEGRO_PATH * path)
 	extension = al_get_path_extension(path);
 	if(extension)
 	{
-		if(!strcasecmp(extension, ".ani"))
+		if(!strcasecmp(extension, ".t3a"))
 		{
 			return t3f_load_animation(al_path_cstr(path, '/'));
 		}
@@ -105,7 +105,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	const char * value;
 	int fs = 16;
 	bool reatlas = false;
-	int i;
+	int i, j;
 	
 	value = al_get_config_value(tp->config, "Settings", "Legacy");
 	if(value)
@@ -174,6 +174,14 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	{
 		sp->block_height = atoi(value);
 	}
+	value = al_get_config_value(tp->config, stage_name, "Block Scale");
+	if(value)
+	{
+		if(!strcasecmp(value, "true"))
+		{
+			sp->block_scale = true;
+		}
+	}
 	
 	/* load the playground positions */
 	for(i = 0; i < tp->max_players; i++)
@@ -233,8 +241,14 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 			sp->crystal_animation[i] = csd_load_animation(tp->path);
 			if(sp->crystal_animation[i])
 			{
-				sp->crystal_animation[i]->frame[0]->width = 28.0;
-				sp->crystal_animation[i]->frame[0]->height = 28.0;
+				if(sp->block_scale)
+				{
+					for(j = 0; j < sp->crystal_animation[i]->frames; j++)
+					{
+						sp->crystal_animation[i]->frame[j]->width = sp->block_width;
+						sp->crystal_animation[i]->frame[j]->height = sp->block_height;
+					}
+				}
 			}
 			if(!sp->crystal_animation[i])
 			{
@@ -256,8 +270,14 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 			sp->fcrystal_animation[i] = csd_load_animation(tp->path);
 			if(sp->fcrystal_animation[i])
 			{
-				sp->fcrystal_animation[i]->frame[0]->width = 28.0;
-				sp->fcrystal_animation[i]->frame[0]->height = 28.0;
+				if(sp->block_scale)
+				{
+					for(j = 0; j < sp->fcrystal_animation[i]->frames; j++)
+					{
+						sp->fcrystal_animation[i]->frame[j]->width = 28.0;
+						sp->fcrystal_animation[i]->frame[j]->height = 28.0;
+					}
+				}
 			}
 			if(!sp->fcrystal_animation[i])
 			{

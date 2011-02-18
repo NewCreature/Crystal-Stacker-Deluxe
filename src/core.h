@@ -20,7 +20,7 @@ int csd_core_find_runs(CSD_PLAYER_BOARD * bp, int bx, int by, int dx, int dy);
 int csd_core_find_all_runs(CSD_PLAYER_BOARD * bp);
 void csd_core_update_level(CSD_PLAYER_BOARD * bp);
 int core_delete_runs(CSD_PLAYER_BOARD * bp);
-void core_mark_runs_bomb(CSD_PLAYER_BOARD * bp, int x, int y);
+int core_mark_runs_bomb(CSD_PLAYER_BOARD * bp, int x, int y);
 int core_find_all_runs(CSD_PLAYER_BOARD * bp);
 
 #endif

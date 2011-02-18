@@ -30,8 +30,8 @@ bool csd_game_setup(void)
 	
 	al_stop_timer(t3f_timer);
 	memset(&csd_game, 0, sizeof(CSD_GAME));
-//	csd_theme = csd_load_theme("themes/default/theme.ini");
-	csd_theme = csd_load_theme("themes/legacy/fb.cth");
+	csd_theme = csd_load_theme("themes/default/theme.ini");
+//	csd_theme = csd_load_theme("themes/legacy/fb.cth");
 	if(!csd_theme)
 	{
 		printf("Error loading theme!\n");
@@ -145,7 +145,7 @@ bool csd_game_add_player_message(int player, int type, const char * message)
 /* run game logic for a player */
 void csd_game_player_logic(int player)
 {
-	int i, temp;
+	int i, temp, bomb;
 	bool move;
 	
 	if(!csd_game.player[player].lost)
@@ -156,6 +156,12 @@ void csd_game_player_logic(int player)
 		{
 			case CSD_PLAYER_BOARD_STATE_NORMAL:
 			{
+				if(t3f_key[ALLEGRO_KEY_1])
+				{
+					csd_game.player[0].block.data[0] = CSD_BLOCK_TYPE_BOMB;
+					csd_game.player[0].block.data[1] = CSD_BLOCK_TYPE_BOMB;
+					csd_game.player[0].block.data[2] = CSD_BLOCK_TYPE_BOMB;
+				}
 				if(csd_controller[player]->state[CSD_CONTROLLER_LEFT].held)
 				{
 					move = false;
@@ -277,14 +283,7 @@ void csd_game_player_logic(int player)
 				if(csd_game.player[player].block.by >= csd_game.stage.board_height || csd_game.player[player].board.data[csd_game.player[player].block.by + csd_game.stage.stack_height][csd_game.player[player].block.bx] != 0)
 				{
 					down_done = 1;
-					if(csd_game.player[player].block.by < csd_game.stage.stack_height)
-					{
-						csd_game.player[player].lost = true;
-						fill_height = 0;
-						csd_game.state = CSD_GAME_STATE_OVER;
-						csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "You lost!");
-						return;
-					}
+					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LAND]);
 					if(csd_game.player[player].block.data[0] != CSD_BLOCK_TYPE_BOMB)
 					{
 						for(i = 0; i < csd_game.stage.stack_height; i++)
@@ -299,23 +298,44 @@ void csd_game_player_logic(int player)
 						{
 							for(i = 0; i < csd_game.stage.stack_height; i++)
 							{
-								csd_game.player[player].board.data[csd_game.player[player].block.by + i][csd_game.player[player].block.bx] = csd_game.player[player].block.data[i];
+								csd_game.player[player].board.data[csd_game.player[player].block.by + i][csd_game.player[player].block.bx] = rand() % 5 + 1;
 							}
+							csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "You really hit bottom!");
 						}
 						else
 						{
+							/* place bomb on board as color of crystal it landed on */
 							for(i = 0; i < csd_game.stage.stack_height; i++)
 							{
 								csd_game.player[player].board.data[csd_game.player[player].block.by + i][csd_game.player[player].block.bx] = csd_game.player[player].board.data[csd_game.player[player].block.by + 3][csd_game.player[player].block.bx];
 							}
-							core_mark_runs_bomb(&csd_game.player[player].board, csd_game.player[player].block.bx, csd_game.player[player].block.by + 3);
+							
+							/* detonate bomb */
+							bomb = core_mark_runs_bomb(&csd_game.player[player].board, csd_game.player[player].block.bx, csd_game.player[player].block.by + 3);
+							switch(bomb)
+							{
+								case 0:
+								{
+									for(i = 0; i < csd_game.stage.stack_height; i++)
+									{
+										csd_game.player[player].board.data[csd_game.player[player].block.by + i][csd_game.player[player].block.bx] = rand() % 5 + 1;
+									}
+									csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "Those are unbreakable!");
+									break;
+								}
+								case 1:
+								{
+									csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "Destruction!");
+									break;
+								}
+								case 2:
+								{
+									csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "Mass Destruction!");
+									break;
+								}
+							}
 						}
 					}
-					csd_game.player[player].block.x = (csd_game.stage.board_width / 2) * csd_game.stage.block_width;
-					csd_game.player[player].block.y = 0.0;
-					csd_player_block_copy(&csd_game.player[player].block, &csd_game.player[player].block_preview);
-					csd_player_block_generate(&csd_game.player[player].block_preview);
-					csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_LAND]);
 					if(core_find_all_runs(&csd_game.player[player].board) > 0)
 					{
 						csd_play_sample(csd_game.stage.sample[CSD_THEME_SAMPLE_MATCHES]);
@@ -324,6 +344,18 @@ void csd_game_player_logic(int player)
 						csd_game.player[player].combo = 0;
 						csd_game.player[player].removed = 0;
 					}
+					if(csd_player_board_full(&csd_game.player[player]) && csd_game.player[player].board.state != CSD_PLAYER_BOARD_STATE_RUNS)
+					{
+						csd_game.player[player].lost = true;
+						fill_height = 0;
+						csd_game.state = CSD_GAME_STATE_OVER;
+						csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "You lost!");
+						return;
+					}
+					csd_game.player[player].block.x = (csd_game.stage.board_width / 2) * csd_game.stage.block_width;
+					csd_game.player[player].block.y = 0.0;
+					csd_player_block_copy(&csd_game.player[player].block, &csd_game.player[player].block_preview);
+					csd_player_block_generate(&csd_game.player[player].block_preview);
 				}
 				break;
 			}
@@ -362,7 +394,17 @@ void csd_game_player_logic(int player)
 							}
 							csd_high_score = csd_game.player[player].score;
 						}
-						csd_game.player[player].board.state = CSD_PLAYER_BOARD_STATE_NORMAL;
+						if(csd_player_board_full(&csd_game.player[player]))
+						{
+							csd_game.player[player].lost = true;
+							fill_height = 0;
+							csd_game.state = CSD_GAME_STATE_OVER;
+							csd_game_add_player_message(player, CSD_MESSAGE_SCROLL, "You lost!");
+						}
+						else
+						{
+							csd_game.player[player].board.state = CSD_PLAYER_BOARD_STATE_NORMAL;
+						}
 					}
 				}
 				break;

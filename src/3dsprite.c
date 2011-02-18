@@ -34,8 +34,9 @@ void sprite_3d_logic(CSD_SPRITE_3D * sprite)
 
 void sprite_3d_draw(CSD_SPRITE_3D * sprite)
 {
+	float a = 1.0 - (sprite->z > -480 ? sprite->z : -480) / -480.0;
 	if(sprite->active)
 	{
-		t3f_draw_animation(sprite->ap, al_map_rgba_f(1.0, 1.0, 1.0, 1.0), sprite->tick, sprite->x, sprite->y, sprite->z, 0);
+		t3f_draw_animation(sprite->ap, al_map_rgba_f(a, a, a, a), sprite->tick, sprite->x, sprite->y, sprite->z, 0);
 	}
 }
