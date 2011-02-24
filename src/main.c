@@ -154,7 +154,7 @@ bool csd_load_images(void)
 
 bool csd_initialize(int argc, char * argv[])
 {
-	if(!t3f_initialize("Crystal Stacker Deluxe", 640, 480, 60.0, csd_logic, csd_render, T3F_DEFAULT | T3F_USE_MOUSE))
+	if(!t3f_initialize("Crystal Stacker Deluxe", 640, 480, 60.0, csd_logic, csd_render, T3F_DEFAULT | T3F_USE_MOUSE | T3F_RESIZABLE | T3F_FORCE_ASPECT))
 	{
 		return false;
 	}

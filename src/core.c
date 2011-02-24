@@ -18,13 +18,13 @@ void core_delete_block(CSD_PLAYER_BOARD * bp, int boardx, int boardy)
 	{
 		if(!csd_game.sprite[i].active)
 		{
-			sprite_3d_create(&csd_game.sprite[i], csd_game.stage.crystal_animation[(int)csd_game.player[bp->id].board.data[boardy][boardx]], csd_game.stage.layout[bp->id].playground.x + boardx * csd_game.stage.block_width, csd_game.stage.layout[0].playground.y + (boardy - csd_game.stage.stack_height) * csd_game.stage.block_height, 20, 0.0, rand() % 2 - 1, -(8 + rand() % 3) * 2);
+			sprite_3d_create(&csd_game.sprite[i], csd_game.stage.crystal_animation[(int)csd_game.player[bp->id].board.data[boardy][boardx]], csd_game.stage.layout[bp->id].board.x + boardx * csd_game.stage.block_width, csd_game.stage.layout[0].board.y + (boardy - csd_game.stage.stack_height) * csd_game.stage.block_height, 20, 0.0, rand() % 2 - 1, -(8 + rand() % 3) * 2);
 			break;
 		}
 	}
 
     /* delete crystal and move above crystals down */
-    for(i = boardy; i > 0; i--)
+    for(i = boardy; i >= 0; i--)
     {
         bp->data[i][boardx] = bp->data[i - 1][boardx];
     }

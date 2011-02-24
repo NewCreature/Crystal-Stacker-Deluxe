@@ -195,7 +195,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		}
 	}
 	
-	/* load the playground positions */
+	/* load the playground position */
 	value = al_get_config_value(tp->config, stage_name, "Playground X");
 	if(value)
 	{
@@ -207,7 +207,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		sp->layout[i].playground.y = atof(value);
 	}
 	
-	/* load the board positions */
+	/* load the board position */
 	value = al_get_config_value(tp->config, stage_name, "Board X");
 	if(value)
 	{
@@ -219,7 +219,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		sp->layout[i].board.y = atof(value);
 	}
 	
-	/* load the message positions */
+	/* load the message position */
 	value = al_get_config_value(tp->config, stage_name, "Message X");
 	if(value)
 	{
@@ -241,6 +241,18 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 		sp->message_height = atof(value);
 	}
 	
+	/* load the high score position */
+	value = al_get_config_value(tp->config, stage_name, "High Score X");
+	if(value)
+	{
+		sp->high_score.x = atof(value);
+	}
+	value = al_get_config_value(tp->config, stage_name, "High Score Y");
+	if(value)
+	{
+		sp->high_score.y = atof(value);
+	}
+
 	/* load crystal animations */
 	for(i = 0; i < CSD_BLOCK_MAX_TYPES; i++)
 	{

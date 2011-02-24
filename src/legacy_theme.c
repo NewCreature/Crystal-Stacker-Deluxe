@@ -254,8 +254,8 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
     sp->board_height = al_fgetc(file);
     for(i = 0; i < 2; i++)
     {
-        sp->layout[i].playground.x = al_fread16le(file) * scale_w;
-        sp->layout[i].playground.y = al_fread16le(file) * scale_h;
+        sp->layout[i].board.x = al_fread16le(file) * scale_w;
+        sp->layout[i].board.y = al_fread16le(file) * scale_h;
         sp->layout[i].score.x = al_fread16le(file) * scale_w;
         sp->layout[i].score.y = al_fread16le(file) * scale_h;
         sp->layout[i].preview.x = al_fread16le(file) * scale_w;
@@ -466,7 +466,6 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
         }
         sp->animation[CSD_THEME_ANIMATION_BACKGROUND] = bitmap2ani(bp);
     }
-    al_restore_state(&old_state);
 
     TempBit = al_fgetc(file);
     if(TempBit == 1)
@@ -616,6 +615,8 @@ bool csd_load_legacy_stage(CSD_THEME * tp, CSD_STAGE * sp)
 			}
 		}
 	}
+    al_restore_state(&old_state);
+	sp->bg_slot = 1;
 	
     return 1;
 }

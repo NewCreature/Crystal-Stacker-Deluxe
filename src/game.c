@@ -528,8 +528,6 @@ void csd_game_player_render(int player)
 	float sy;
 	
 	/* draw board */
-	int cx, cy, cw, ch;
-	al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
 	t3f_set_clipping_rectangle(csd_game.stage.layout[player].board.x, csd_game.stage.layout[player].board.y, csd_game.stage.layout[player].board.x + csd_game.stage.board_width * csd_game.stage.block_width, csd_game.stage.layout[player].board.y + csd_game.stage.board_height * csd_game.stage.block_height);
 	al_hold_bitmap_drawing(true);
 	for(i = 0; i < csd_game.stage.board_height; i++)
@@ -575,7 +573,7 @@ void csd_game_player_render(int player)
 	al_hold_bitmap_drawing(false);
 	t3f_set_clipping_rectangle(csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_width, csd_game.stage.message_height);
 	csd_render_message_queue(&csd_game.player[player].messages, csd_game.stage.font, csd_game.stage.layout[player].message.x, csd_game.stage.layout[player].message.y, csd_game.stage.message_scroll_type == 0);
-	al_set_clipping_rectangle(cx, cy, cw, ch);
+	t3f_set_clipping_rectangle(0, 0, 0, 0);
 	
 	/* draw preview block */
 	al_hold_bitmap_drawing(true);
@@ -598,6 +596,7 @@ void csd_game_render(void)
 {
 	int i;
 	
+	t3f_set_clipping_rectangle(0, 0, 0, 0);
 	if(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND + (csd_game.stage.bg_slot + 1) % 2])
 	{
 		t3f_draw_animation(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND + (csd_game.stage.bg_slot + 1) % 2], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), 0, 0.0, 0.0, 0.0, 0);
