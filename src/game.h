@@ -28,6 +28,7 @@ typedef struct
 	
 	int state;
 	int tick;
+	float fade;
 	
 } CSD_GAME;
 

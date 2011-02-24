@@ -121,6 +121,7 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	/* clear stage data if we are loading the first stage so we don't get junk */
 	if(stage == 0)
 	{
+		sp->bg_slot = 0;
 		memset(sp, 0, sizeof(CSD_STAGE));
 		sp->atlas = t3f_create_atlas(T3F_ATLAS_SPRITES, 1024, 1024);
 	}
@@ -152,7 +153,12 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	{
 		al_set_path_filename(tp->path, value);
 		printf("%s\n", value);
-		sp->animation[CSD_THEME_ANIMATION_BACKGROUND] = csd_load_animation(tp->path);
+		sp->animation[CSD_THEME_ANIMATION_BACKGROUND + sp->bg_slot] = csd_load_animation(tp->path);
+		sp->bg_slot++;
+		if(sp->bg_slot > 1)
+		{
+			sp->bg_slot = 0;
+		}
 	}
 	
 	/* load the playground image */

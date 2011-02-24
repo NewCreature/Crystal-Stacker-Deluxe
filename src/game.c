@@ -67,6 +67,7 @@ bool csd_game_setup(void)
 	}
 	memset(csd_controller_repeat, 0, sizeof(int) * CSD_MAX_PLAYERS * 5);
 	high_broken = false;
+	csd_game.fade = 1.0;
 	csd_game.state = CSD_GAME_STATE_PLAY;
 	csd_set_state(CSD_STATE_PLAYING);
 	al_start_timer(t3f_timer);
@@ -127,8 +128,14 @@ void csd_game_exit(void)
 
 void csd_game_init_level(int level, int player)
 {
+	int old_slot = csd_game.stage.bg_slot;
+	
 	csd_game.player[player].level = level;
 	csd_load_stage(csd_game.theme, &csd_game.stage, csd_game.player[player].level);
+	if(old_slot != csd_game.stage.bg_slot)
+	{
+		csd_game.fade = 0.0;
+	}
 	
 	/* increase the speed of the stack */
 	ratio = (float)level_chart[csd_game.player[player].level] / 1000.0;
@@ -505,6 +512,13 @@ void csd_game_logic(void)
 			break;
 		}
 	}
+	
+	/* handle crossfade */
+	csd_game.fade += 1.0 / 30.0;
+	if(csd_game.fade > 1.0)
+	{
+		csd_game.fade = 1.0;
+	}
 	csd_game.tick++;
 }
 
@@ -584,9 +598,13 @@ void csd_game_render(void)
 {
 	int i;
 	
-	if(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND])
+	if(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND + (csd_game.stage.bg_slot + 1) % 2])
 	{
-		t3f_draw_animation(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), 0, 0.0, 0.0, 0.0, 0);
+		t3f_draw_animation(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND + (csd_game.stage.bg_slot + 1) % 2], al_map_rgba_f(1.0, 1.0, 1.0, 1.0), 0, 0.0, 0.0, 0.0, 0);
+		if(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND + csd_game.stage.bg_slot] && csd_game.fade < 1.0)
+		{
+			t3f_draw_animation(csd_game.stage.animation[CSD_THEME_ANIMATION_BACKGROUND + csd_game.stage.bg_slot], al_map_rgba_f(1.0 - csd_game.fade, 1.0 - csd_game.fade, 1.0 - csd_game.fade, 1.0 - csd_game.fade), 0, 0.0, 0.0, 0.0, 0);
+		}
 	}
 	else
 	{

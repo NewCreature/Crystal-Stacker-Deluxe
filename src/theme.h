@@ -13,9 +13,9 @@
 
 #define CSD_MAX_PLAYERS             4
 
-#define CSD_THEME_ANIMATION_BACKGROUND 0
-#define CSD_THEME_ANIMATION_PLAYGROUND 1
-#define CSD_THEME_ANIMATION_CRYSTALS   2
+#define CSD_THEME_ANIMATION_BACKGROUND 0 // use two slots so we can do a crossfade
+#define CSD_THEME_ANIMATION_PLAYGROUND 2
+#define CSD_THEME_ANIMATION_CRYSTALS   3
 
 #define CSD_THEME_FLASH_OVERLAY        0
 
@@ -63,6 +63,7 @@ typedef struct
 	ALLEGRO_FONT * font;
 	ALLEGRO_SAMPLE * sample[CSD_THEME_SAMPLES];
 	T3F_ATLAS * atlas;
+	int bg_slot;
 	
 	/* layout */
 	CSD_STAGE_LAYOUT layout[CSD_MAX_PLAYERS];
