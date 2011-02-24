@@ -96,6 +96,12 @@ void csd_destroy_theme(CSD_THEME * tp)
 	free(tp);
 }
 
+/* load a multiplayer stage */
+bool csd_load_multiplayer_stage(CSD_THEME * tp, CSD_STAGE * sp, int players)
+{
+	return false;
+}
+
 /* load the specified stage, should only be called if csd_should_load_stage
    returned true */
 bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
@@ -190,49 +196,49 @@ bool csd_load_stage(CSD_THEME * tp, CSD_STAGE * sp, int stage)
 	}
 	
 	/* load the playground positions */
-	for(i = 0; i < tp->max_players; i++)
+	value = al_get_config_value(tp->config, stage_name, "Playground X");
+	if(value)
 	{
-		sprintf(vname, "Playground %d X", i);
-		value = al_get_config_value(tp->config, stage_name, vname);
-		if(value)
-		{
-			sp->layout[i].playground.x = atof(value);
-		}
-		sprintf(vname, "Playground %d Y", i);
-		value = al_get_config_value(tp->config, stage_name, vname);
-		if(value)
-		{
-			sp->layout[i].playground.y = atof(value);
-		}
+		sp->layout[i].playground.x = atof(value);
+	}
+	value = al_get_config_value(tp->config, stage_name, "Playground Y");
+	if(value)
+	{
+		sp->layout[i].playground.y = atof(value);
+	}
+	
+	/* load the board positions */
+	value = al_get_config_value(tp->config, stage_name, "Board X");
+	if(value)
+	{
+		sp->layout[i].board.x = atof(value);
+	}
+	value = al_get_config_value(tp->config, stage_name, "Board Y");
+	if(value)
+	{
+		sp->layout[i].board.y = atof(value);
 	}
 	
 	/* load the message positions */
-	for(i = 0; i < tp->max_players; i++)
+	value = al_get_config_value(tp->config, stage_name, "Message X");
+	if(value)
 	{
-		sprintf(vname, "Message %d X", i);
-		value = al_get_config_value(tp->config, stage_name, vname);
-		if(value)
-		{
-			sp->layout[i].message.x = atof(value);
-		}
-		sprintf(vname, "Message %d Y", i);
-		value = al_get_config_value(tp->config, stage_name, vname);
-		if(value)
-		{
-			sp->layout[i].message.y = atof(value);
-		}
-		sprintf(vname, "Message %d Width", i);
-		value = al_get_config_value(tp->config, stage_name, vname);
-		if(value)
-		{
-			sp->message_width = atof(value);
-		}
-		sprintf(vname, "Message %d Height", i);
-		value = al_get_config_value(tp->config, stage_name, vname);
-		if(value)
-		{
-			sp->message_height = atof(value);
-		}
+		sp->layout[i].message.x = atof(value);
+	}
+	value = al_get_config_value(tp->config, stage_name, "Message Y");
+	if(value)
+	{
+		sp->layout[i].message.y = atof(value);
+	}
+	value = al_get_config_value(tp->config, stage_name, "Message Width");
+	if(value)
+	{
+		sp->message_width = atof(value);
+	}
+	value = al_get_config_value(tp->config, stage_name, "Message Height");
+	if(value)
+	{
+		sp->message_height = atof(value);
 	}
 	
 	/* load crystal animations */

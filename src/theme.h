@@ -50,6 +50,7 @@ typedef struct
 	CSD_STAGE_OBJECT level;
 	CSD_STAGE_OBJECT message;
 	CSD_STAGE_OBJECT block;
+	CSD_STAGE_OBJECT board;
 	
 } CSD_STAGE_LAYOUT;
 
